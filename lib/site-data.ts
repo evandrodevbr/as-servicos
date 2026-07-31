@@ -92,7 +92,7 @@ export const PORTFOLIO: {
     local: 'Zona Sul',
     ano: '2024',
     description:
-      'Reconfiguração de layout, revisão hidrossanitária e acompanhamento de execução com orçamento fechado sobre custo de obra.',
+      'Da alvenaria exposta ao acabamento pronto, com orçamento fechado desde o início — sem reajuste surpresa no meio da obra.',
     image: '/portfolio/reforma-depois.png',
     imageAlt:
       'Sala de apartamento reformada com piso de concreto polido, paredes brancas e caixilhos metálicos pretos',
@@ -108,7 +108,7 @@ export const PORTFOLIO: {
     local: 'Comercial',
     ano: '2024',
     description:
-      'Substituição integral do quadro de distribuição, balanceamento de fases, identificação de circuitos e laudo de conformidade.',
+      'Quadro refeito do zero, circuitos identificados e proteção contra descargas em conformidade — a segurança que não se vê, mas evita o pior.',
     image: '/portfolio/quadro-depois.png',
     imageAlt:
       'Quadro de distribuição elétrica novo com disjuntores alinhados e cabeamento organizado em canaletas',
@@ -124,7 +124,7 @@ export const PORTFOLIO: {
     local: 'Galpão logístico',
     ano: '2023',
     description:
-      'Projeto de cobertura de câmeras, rack organizado, certificação de pontos de rede e acesso remoto monitorado.',
+      'Câmeras posicionadas para cobrir cada ponto cego, rede certificada ponta a ponta e acesso remoto — para acompanhar sem precisar estar lá.',
     image: '/portfolio/cftv.png',
     imageAlt:
       'Rack de rede com patch panels, cabos azuis organizados e switch com LEDs acesos',
@@ -136,7 +136,7 @@ export const PORTFOLIO: {
     local: 'Sob encomenda',
     ano: '2025',
     description:
-      'Plataforma interna para medição de etapas, controle de custo por serviço e geração automática de relatórios para o cliente final.',
+      'Pensada para quem gerencia obra no dia a dia: menos planilha solta, mais clareza de custo e prazo em tempo real.',
     image: '/portfolio/software.png',
     imageAlt:
       'Monitor exibindo painel de software escuro com gráficos e indicadores em azul',

@@ -2,9 +2,15 @@
 
 import { animate } from 'animejs'
 import Image from 'next/image'
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Reveal } from '@/components/motion/reveal'
 import { PORTFOLIO } from '@/lib/site-data'
+
+const clamp = (v: number, min = 0, max = 1) => Math.min(max, Math.max(min, v))
+const smoothstep = (edge0: number, edge1: number, x: number) => {
+  const t = clamp((x - edge0) / (edge1 - edge0))
+  return t * t * (3 - 2 * t)
+}
 
 function CompareCard({ item }: { item: (typeof PORTFOLIO)[number] }) {
   const [showBefore, setShowBefore] = useState(false)
@@ -61,6 +67,10 @@ function CompareCard({ item }: { item: (typeof PORTFOLIO)[number] }) {
           aria-hidden="true"
         />
 
+        <span className="label-tech text-muted-foreground/80 bg-background/70 pointer-events-none absolute right-5 bottom-5 px-3 py-1.5 backdrop-blur">
+          Imagem ilustrativa, não é a entrega real
+        </span>
+
         {hasCompare && (
           <button
             type="button"
@@ -95,6 +105,148 @@ function CompareCard({ item }: { item: (typeof PORTFOLIO)[number] }) {
   )
 }
 
+/**
+ * Grid da grade de portfólio.
+ *
+ * Em telas ≥lg (onde o grid de 2 colunas cabe inteiro numa tela), a seção
+ * "gruda" (sticky) por uma faixa maior de scroll e os cards entram conforme
+ * o progresso do scroll dentro dela — como um vídeo controlado pelo scroll,
+ * em vez do usuário apenas passar pelos cards. Em telas menores o grid
+ * empilha em 1 coluna e não caberia inteiro numa tela sem cortar cards, então
+ * mantém-se a revelação em cascata de sempre (Reveal ao entrar na viewport).
+ */
+function PortfolioGrid({ items }: { items: typeof PORTFOLIO }) {
+  const [pinned, setPinned] = useState(false)
+  const wrapRef = useRef<HTMLDivElement | null>(null)
+  const stickyRef = useRef<HTMLDivElement | null>(null)
+  const gridRef = useRef<HTMLDivElement | null>(null)
+  const cardRefs = useRef<(HTMLDivElement | null)[]>([])
+  /** altura do header fixo (px) — o conteúdo grudado nunca pode entrar embaixo dele */
+  const [headerOffset, setHeaderOffset] = useState(0)
+
+  useEffect(() => {
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (reduced) return
+    const mq = window.matchMedia('(min-width: 1024px)')
+    const apply = () => setPinned(mq.matches)
+    apply()
+    mq.addEventListener('change', apply)
+    return () => mq.removeEventListener('change', apply)
+  }, [])
+
+  useEffect(() => {
+    const header = document.querySelector('header')
+    if (!header) return
+    const measure = () => setHeaderOffset(header.getBoundingClientRect().height)
+    measure()
+    window.addEventListener('resize', measure)
+    return () => window.removeEventListener('resize', measure)
+  }, [])
+
+  // encolhe o grid (mantendo a proporção) para sempre caber no espaço
+  // disponível abaixo do header — em vez de estourar e ficar por baixo dele
+  useEffect(() => {
+    if (!pinned) return
+    const sticky = stickyRef.current
+    const grid = gridRef.current
+    if (!sticky || !grid) return
+
+    const fit = () => {
+      grid.style.transform = 'none'
+      const avail = sticky.clientHeight
+      const needed = grid.scrollHeight
+      const scale = needed > avail ? avail / needed : 1
+      grid.style.transform = scale < 1 ? `scale(${scale})` : 'none'
+    }
+    fit()
+    window.addEventListener('resize', fit)
+    return () => window.removeEventListener('resize', fit)
+  }, [pinned, headerOffset])
+
+  useEffect(() => {
+    if (!pinned) return
+    const wrap = wrapRef.current
+    if (!wrap) return
+
+    let raf = 0
+    const update = () => {
+      raf = 0
+      const rect = wrap.getBoundingClientRect()
+      const total = rect.height - window.innerHeight
+      const raw = total > 0 ? clamp(-rect.top / total) : 0
+      const n = cardRefs.current.length
+      const span = 1 / n
+      cardRefs.current.forEach((el, i) => {
+        if (!el) return
+        const start = i * span
+        const end = Math.min(1, start + span * 1.6)
+        const ip = smoothstep(start, end, raw)
+        el.style.opacity = String(ip)
+        el.style.transform = `translateY(${(1 - ip) * 42}px) scale(${0.94 + 0.06 * ip})`
+      })
+    }
+    const onScroll = () => {
+      if (!raf) raf = requestAnimationFrame(update)
+    }
+
+    update()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', onScroll)
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', onScroll)
+      if (raf) cancelAnimationFrame(raf)
+    }
+  }, [pinned])
+
+  if (!pinned) {
+    return (
+      <Reveal className="mt-14 grid gap-px sm:gap-8 lg:grid-cols-2" stagger y={36}>
+        {items.map((item) => (
+          <div key={item.id} className="reveal-init">
+            <CompareCard item={item} />
+          </div>
+        ))}
+      </Reveal>
+    )
+  }
+
+  return (
+    <div
+      ref={wrapRef}
+      className="relative mt-14"
+      style={{ height: `${items.length * 70}vh` }}
+    >
+      <div
+        ref={stickyRef}
+        className="sticky flex items-center overflow-hidden"
+        style={{ top: headerOffset, height: `calc(100vh - ${headerOffset}px)` }}
+      >
+        <div
+          ref={gridRef}
+          className="grid w-full origin-center gap-px sm:gap-8 lg:grid-cols-2"
+        >
+          {items.map((item, i) => (
+            <div
+              key={item.id}
+              ref={(el) => {
+                cardRefs.current[i] = el
+              }}
+              style={{
+                opacity: 0,
+                transform: 'translateY(42px) scale(0.94)',
+                willChange: 'opacity, transform',
+              }}
+            >
+              <CompareCard item={item} />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export function Portfolio() {
   return (
     <section
@@ -115,19 +267,14 @@ export function Portfolio() {
               Trabalhos entregues, documentados do início ao fim.
             </h2>
             <p className="text-muted-foreground max-w-sm text-sm leading-relaxed">
-              Imagens de referência enquanto o registro fotográfico definitivo dos
-              projetos é finalizado.
+              O registro fotográfico de cada obra está a caminho. Por enquanto,
+              as imagens abaixo ilustram o padrão de entrega — e isso está
+              identificado em cada uma delas.
             </p>
           </div>
         </Reveal>
 
-        <Reveal className="mt-14 grid gap-px sm:gap-8 lg:grid-cols-2" stagger y={36}>
-          {PORTFOLIO.map((item) => (
-            <div key={item.id} className="reveal-init">
-              <CompareCard item={item} />
-            </div>
-          ))}
-        </Reveal>
+        <PortfolioGrid items={PORTFOLIO} />
       </div>
     </section>
   )
