@@ -109,11 +109,11 @@ export const PORTFOLIO: {
     ano: '2024',
     description:
       'Quadro refeito do zero, circuitos identificados e proteção contra descargas em conformidade — a segurança que não se vê, mas evita o pior.',
-    image: '/portfolio/quadro-depois.png',
+    image: '/portfolio/quadro-depois.jpg',
     imageAlt:
       'Quadro de distribuição elétrica novo com disjuntores alinhados e cabeamento organizado em canaletas',
     compare: {
-      image: '/portfolio/quadro-antes.png',
+      image: '/portfolio/quadro-antes.jpg',
       alt: 'Quadro elétrico antigo com fiação desorganizada e fusíveis cerâmicos',
     },
   },

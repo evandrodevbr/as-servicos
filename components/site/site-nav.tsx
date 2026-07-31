@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { useEffect, useRef, useState } from 'react'
 
 const LINKS = [
@@ -35,15 +36,17 @@ export function SiteNav() {
       <div className="mx-auto flex h-16 max-w-[1400px] items-center justify-between px-5 sm:px-8">
         <a
           href="#top"
-          className="group flex items-baseline gap-2"
+          className="group flex items-center gap-2"
           aria-label="AS Serviços — início"
         >
-          <span className="font-display text-foreground text-base font-bold tracking-tight">
-            AS
-          </span>
-          <span className="label-tech text-muted-foreground group-hover:text-primary transition-colors">
-            Serviços
-          </span>
+          <Image
+            src="/logo.png"
+            alt="AS Serviços"
+            width={40}
+            height={40}
+            priority
+            className="h-9 w-9 object-contain transition-opacity group-hover:opacity-80"
+          />
         </a>
 
         <nav aria-label="Principal" className="hidden items-center gap-8 md:flex">

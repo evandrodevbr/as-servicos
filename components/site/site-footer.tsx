@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import { CONTACT_LINKS } from '@/lib/site-data'
 
 const NAV = [
@@ -13,9 +14,13 @@ export function SiteFooter() {
       <div className="mx-auto w-full max-w-[1400px] px-5 py-14 sm:px-8">
         <div className="flex flex-col gap-10 md:flex-row md:items-start md:justify-between">
           <div className="max-w-sm">
-            <p className="font-display text-foreground text-lg font-bold tracking-tight">
-              AS Serviços
-            </p>
+            <Image
+              src="/logo.png"
+              alt="AS Serviços"
+              width={48}
+              height={48}
+              className="h-11 w-11 object-contain"
+            />
             <p className="text-muted-foreground mt-3 text-sm leading-relaxed">
               Engenharia civil, elétrica, eletrônica e de software sob um único
               responsável técnico.
