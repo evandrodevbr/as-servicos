@@ -68,7 +68,7 @@ function CompareCard({ item }: { item: (typeof PORTFOLIO)[number] }) {
         />
 
         <span className="label-tech text-muted-foreground/80 bg-background/70 pointer-events-none absolute right-5 bottom-5 px-3 py-1.5 backdrop-blur">
-          Imagem ilustrativa, não é a entrega real
+          Imagem ilustrativa
         </span>
 
         {hasCompare && (
