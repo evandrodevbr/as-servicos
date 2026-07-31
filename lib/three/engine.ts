@@ -210,12 +210,12 @@ export class SceneEngine {
 
     // Telhado (duas águas)
     P(edges(new THREE.BoxGeometry(4.9, 0.1, 2.25), g), [0, 1.55, 0.85], [0, 4.3, 2.4], {
-      baseRot: [-0.42, 0, 0],
-      explodeRot: [-0.15, 0, 0],
-    })
-    P(edges(new THREE.BoxGeometry(4.9, 0.1, 2.25), g), [0, 1.55, -0.85], [0, 4.3, -2.4], {
       baseRot: [0.42, 0, 0],
       explodeRot: [0.15, 0, 0],
+    })
+    P(edges(new THREE.BoxGeometry(4.9, 0.1, 2.25), g), [0, 1.55, -0.85], [0, 4.3, -2.4], {
+      baseRot: [-0.42, 0, 0],
+      explodeRot: [-0.15, 0, 0],
     })
     // Cumeeira
     P(edges(new THREE.BoxGeometry(5.0, 0.09, 0.09), g), [0, 2.02, 0], [0, 5.6, 0])
