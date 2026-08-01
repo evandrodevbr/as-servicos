@@ -15,6 +15,8 @@ export const AREAS: {
   subtitle: string
   description: string
   items: string[]
+  /** Preenchido só quando houver nome e registro reais para publicar. */
+  specialist?: { name: string; role: string; registro: string }
 }[] = [
   {
     id: 'civil',
@@ -78,6 +80,7 @@ export const PORTFOLIO: {
   id: string
   title: string
   area: string
+  areaId: AreaId
   local: string
   ano: string
   description: string
@@ -89,6 +92,7 @@ export const PORTFOLIO: {
     id: 'reforma',
     title: 'Reforma integral de apartamento',
     area: 'Engenharia Civil',
+    areaId: 'civil',
     local: 'Zona Sul',
     ano: '2024',
     description:
@@ -105,6 +109,7 @@ export const PORTFOLIO: {
     id: 'quadro',
     title: 'Adequação de quadro e SPDA',
     area: 'Engenharia Elétrica',
+    areaId: 'eletrica',
     local: 'Comercial',
     ano: '2024',
     description:
@@ -121,6 +126,7 @@ export const PORTFOLIO: {
     id: 'cftv',
     title: 'CFTV e cabeamento estruturado',
     area: 'Eletrônica & Automação',
+    areaId: 'eletronica',
     local: 'Galpão logístico',
     ano: '2023',
     description:
@@ -133,6 +139,7 @@ export const PORTFOLIO: {
     id: 'sistema',
     title: 'Sistema de gestão de obras',
     area: 'Desenvolvimento de Software',
+    areaId: 'computacao',
     local: 'Sob encomenda',
     ano: '2025',
     description:

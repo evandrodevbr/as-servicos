@@ -1,5 +1,6 @@
+import Image from 'next/image'
 import { Reveal } from '@/components/motion/reveal'
-import { AREAS } from '@/lib/site-data'
+import { AREAS, PORTFOLIO } from '@/lib/site-data'
 
 export function Areas() {
   return (
@@ -74,6 +75,42 @@ export function Areas() {
                       </li>
                     ))}
                   </ul>
+
+                  {area.specialist && (
+                    <p className="label-tech text-muted-foreground border-border mt-8 border-t pt-5">
+                      Responsável técnico: {area.specialist.name} ·{' '}
+                      {area.specialist.role} · {area.specialist.registro}
+                    </p>
+                  )}
+
+                  {PORTFOLIO.filter((p) => p.areaId === area.id).map((p) => (
+                    <a
+                      key={p.id}
+                      href="#portfolio"
+                      className="border-border mt-8 flex items-center gap-4 border-t pt-6 transition-opacity hover:opacity-80"
+                    >
+                      <span className="relative h-14 w-20 shrink-0 overflow-hidden">
+                        <Image
+                          src={p.image || '/placeholder.svg'}
+                          alt={p.imageAlt}
+                          fill
+                          sizes="80px"
+                          className="object-cover grayscale-[35%]"
+                        />
+                      </span>
+                      <span className="flex flex-col gap-1">
+                        <span className="label-tech text-primary">
+                          Exemplo de entrega
+                        </span>
+                        <span className="text-foreground text-sm leading-tight font-medium">
+                          {p.title}
+                        </span>
+                        <span className="label-tech text-muted-foreground">
+                          {p.local} · {p.ano} · ver no portfólio →
+                        </span>
+                      </span>
+                    </a>
+                  ))}
                 </div>
               </div>
             </Reveal>
