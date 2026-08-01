@@ -22,8 +22,9 @@ export function SiteFooter() {
               className="h-11 w-11 object-contain"
             />
             <p className="text-muted-foreground mt-3 text-sm leading-relaxed">
-              Engenharia civil, elétrica, eletrônica e de software sob um único
-              responsável técnico.
+              Engenharia civil, elétrica, eletrônica e de software — um
+              profissional qualificado à frente de cada área, sob o mesmo
+              teto.
             </p>
           </div>
 
@@ -47,7 +48,7 @@ export function SiteFooter() {
             © {new Date().getFullYear()} AS Serviços de Engenharia
           </p>
           <p className="label-tech text-muted-foreground/70">
-            Responsável técnico com ART em todos os projetos
+            Responsáveis técnicos com ART em cada projeto
           </p>
         </div>
       </div>

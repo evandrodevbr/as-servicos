@@ -37,7 +37,7 @@ export const ORGANIZATION_SCHEMA = {
       logo: `${SITE_URL}/logo.png`,
       image: `${SITE_URL}/logo.png`,
       description:
-        'Engenharia civil, elétrica, eletrônica/automação e desenvolvimento de software sob um único responsável técnico, com projetos, laudos, automação e sistemas sob encomenda e precificação transparente.',
+        'Engenharia civil, elétrica, eletrônica/automação e desenvolvimento de software, com um profissional qualificado à frente de cada área — projetos, laudos, automação e sistemas sob encomenda, com precificação transparente.',
       areaServed: { '@type': 'Country', name: 'Brasil' },
       ...(linkedin ? { sameAs: [linkedin.href] } : {}),
       makesOffer: serviceNodes.map((s) => ({ '@id': s['@id'] })),
