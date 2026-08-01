@@ -144,7 +144,7 @@ export const PORTFOLIO: {
 ]
 
 export const CONTACT_LINKS = [
-  { label: 'WhatsApp', value: '+55 (11) 90000-0000', href: 'https://wa.me/5511900000000' },
+  { label: 'WhatsApp', value: '+55 (41) 9984-7511', href: 'https://wa.me/554199847511' },
   { label: 'E-mail', value: 'contato@asservicos.com.br', href: 'mailto:contato@asservicos.com.br' },
-  { label: 'LinkedIn', value: '/company/as-servicos', href: 'https://www.linkedin.com/' },
+  { label: 'LinkedIn', value: '/company/asilvaservicos', href: 'https://www.linkedin.com/company/asilvaservicos' },
 ]
