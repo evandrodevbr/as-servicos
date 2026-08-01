@@ -9,6 +9,18 @@ import { CONTACT_AREAS } from '@/lib/site-data'
 
 const initialState: ContactState = { status: 'idle', message: '' }
 
+/** Formata progressivamente enquanto digita: (DDD) fixo 4-4 ou celular 5-4. */
+function formatBrazilianPhone(raw: string): string {
+  const digits = raw.replace(/\D/g, '').slice(0, 11)
+  if (digits.length === 0) return ''
+  if (digits.length <= 2) return `(${digits}`
+  const ddd = digits.slice(0, 2)
+  const rest = digits.slice(2)
+  if (digits.length <= 6) return `(${ddd}) ${rest}`
+  if (digits.length <= 10) return `(${ddd}) ${rest.slice(0, 4)}-${rest.slice(4)}`
+  return `(${ddd}) ${rest.slice(0, 5)}-${rest.slice(5)}`
+}
+
 const fieldClass =
   'border-border bg-card/85 text-foreground placeholder:text-muted-foreground/60 focus:border-primary focus:ring-primary/30 w-full border px-4 py-3 text-sm outline-none backdrop-blur-sm transition-colors focus:ring-2'
 
@@ -103,6 +115,10 @@ export function Contact() {
                     autoComplete="tel"
                     placeholder="(11) 90000-0000"
                     required
+                    maxLength={15}
+                    onChange={(e) => {
+                      e.target.value = formatBrazilianPhone(e.target.value)
+                    }}
                     aria-invalid={!!state.errors?.telefone}
                     aria-describedby={
                       state.errors?.telefone ? 'telefone-error' : undefined
@@ -126,7 +142,11 @@ export function Contact() {
                   name="email"
                   type="email"
                   autoComplete="email"
+                  placeholder="voce@exemplo.com"
                   required
+                  onBlur={(e) => {
+                    e.target.value = e.target.value.trim().toLowerCase()
+                  }}
                   aria-invalid={!!state.errors?.email}
                   aria-describedby={state.errors?.email ? 'email-error' : undefined}
                   className={fieldClass}
@@ -179,6 +199,7 @@ export function Contact() {
                   name="mensagem"
                   rows={5}
                   required
+                  placeholder="Ex.: Preciso de um laudo de SPDA para o condomínio onde moro — o atual está vencido e o síndico pediu regularização até o fim do mês."
                   aria-invalid={!!state.errors?.mensagem}
                   aria-describedby={
                     state.errors?.mensagem ? 'mensagem-error' : undefined
