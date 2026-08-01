@@ -2,17 +2,23 @@
 
 import { animate, stagger } from 'animejs'
 import { useEffect, useRef } from 'react'
-import { useSceneReady } from '@/components/site/experience'
 
 const HEADLINE = ['Do projeto', 'à entrega —', 'engenharia e tecnologia', 'sob o mesmo teto.']
 
+/**
+ * A revelação do texto roda no mount, sincronizada com a duração fixa do
+ * preloader (~550ms) em vez de esperar a cena 3D terminar de montar — texto
+ * gated por `opacity:0` até a cena 3D ficar pronta derrubava o LCP (elemento
+ * com opacity 0 não conta como "pintado" para o Core Web Vitals).
+ */
+const OVERLAY_EXIT_MS = 550
+
 export function Hero() {
-  const ready = useSceneReady()
   const rootRef = useRef<HTMLDivElement | null>(null)
   const played = useRef(false)
 
   useEffect(() => {
-    if (!ready || played.current) return
+    if (played.current) return
     const root = rootRef.current
     if (!root) return
     played.current = true
@@ -33,17 +39,17 @@ export function Hero() {
       opacity: [0, 1],
       translateY: ['110%', '0%'],
       duration: 1100,
-      delay: stagger(90),
+      delay: stagger(90, { start: OVERLAY_EXIT_MS }),
       ease: 'out(4)',
     })
     animate(rest, {
       opacity: [0, 1],
       translateY: [18, 0],
       duration: 900,
-      delay: stagger(110, { start: 520 }),
+      delay: stagger(110, { start: OVERLAY_EXIT_MS + 520 }),
       ease: 'out(3)',
     })
-  }, [ready])
+  }, [])
 
   return (
     <section

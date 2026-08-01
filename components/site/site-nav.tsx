@@ -70,7 +70,7 @@ export function SiteNav() {
         <button
           type="button"
           onClick={() => setOpen((v) => !v)}
-          className="text-foreground border-border flex h-9 w-9 items-center justify-center border md:hidden"
+          className="text-foreground border-border flex h-11 w-11 items-center justify-center border md:hidden"
           aria-expanded={open}
           aria-controls="menu-mobile"
           aria-label={open ? 'Fechar menu' : 'Abrir menu'}

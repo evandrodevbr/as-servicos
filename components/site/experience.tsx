@@ -24,7 +24,7 @@ export function Experience({ children }: { children: ReactNode }) {
 
   const onReady = useCallback(() => setReady(true), [])
 
-  // contador de carregamento
+  // contador de carregamento — puramente cosmético, duração curta e fixa
   useEffect(() => {
     const counter = counterRef.current
     const bar = barRef.current
@@ -32,7 +32,7 @@ export function Experience({ children }: { children: ReactNode }) {
     const state = { v: 0 }
     animate(state, {
       v: 100,
-      duration: 2200,
+      duration: 550,
       ease: 'out(2)',
       onUpdate: () => {
         counter.textContent = String(Math.round(state.v)).padStart(3, '0')
@@ -41,9 +41,12 @@ export function Experience({ children }: { children: ReactNode }) {
     })
   }, [])
 
-  // saída do preloader
+  // saída do preloader — duração curta e fixa, independente da cena 3D estar
+  // pronta. A cena continua montando/animando em segundo plano depois que a
+  // página já está visível; travar o primeiro paint nela derrubava o LCP
+  // para ~10s (o texto do Hero ficava com opacity:0, que não conta para LCP,
+  // enquanto a cena 3D montava — ver auditoria de performance).
   useEffect(() => {
-    if (!ready) return
     const overlay = overlayRef.current
     if (!overlay) {
       setHidden(true)
@@ -55,14 +58,16 @@ export function Experience({ children }: { children: ReactNode }) {
       document.body.style.overflow = ''
       return
     }
-    animate(overlay, {
-      opacity: [1, 0],
-      duration: 700,
-      delay: 240,
-      ease: 'inOut(2)',
-      onComplete: () => setHidden(true),
-    })
-  }, [ready])
+    const t = window.setTimeout(() => {
+      animate(overlay, {
+        opacity: [1, 0],
+        duration: 400,
+        ease: 'inOut(2)',
+        onComplete: () => setHidden(true),
+      })
+    }, 550)
+    return () => window.clearTimeout(t)
+  }, [])
 
   // trava o scroll durante a abertura
   useEffect(() => {
