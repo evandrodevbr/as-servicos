@@ -1,8 +1,15 @@
 'use client'
 
-import { animate } from 'animejs'
+import { ChevronsLeftRight } from 'lucide-react'
 import Image from 'next/image'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type KeyboardEvent as ReactKeyboardEvent,
+  type PointerEvent as ReactPointerEvent,
+} from 'react'
 import { Reveal } from '@/components/motion/reveal'
 import { PORTFOLIO } from '@/lib/site-data'
 
@@ -12,53 +19,130 @@ const smoothstep = (edge0: number, edge1: number, x: number) => {
   return t * t * (3 - 2 * t)
 }
 
-function CompareCard({ item }: { item: (typeof PORTFOLIO)[number] }) {
-  const [showBefore, setShowBefore] = useState(false)
-  const beforeRef = useRef<HTMLDivElement | null>(null)
+/**
+ * Slider de comparação antes/depois. "Depois" fica como camada de fundo,
+ * "antes" fica por cima recortado (clip-path) da esquerda até a posição da
+ * alça: arrastar tudo pra esquerda encolhe o recorte a zero (só "depois"
+ * visível), arrastar tudo pra direita cobre o card inteiro (só "antes").
+ */
+function BeforeAfterSlider({
+  before,
+  after,
+}: {
+  before: { src: string; alt: string }
+  after: { src: string; alt: string }
+}) {
+  const [position, setPosition] = useState(50)
+  const containerRef = useRef<HTMLDivElement | null>(null)
+  const draggingRef = useRef(false)
 
-  const toggle = useCallback((next: boolean) => {
-    setShowBefore(next)
-    const el = beforeRef.current
+  const updateFromClientX = useCallback((clientX: number) => {
+    const el = containerRef.current
     if (!el) return
-    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    if (reduced) {
-      el.style.opacity = next ? '1' : '0'
-      return
-    }
-    animate(el, {
-      opacity: next ? 1 : 0,
-      scale: next ? 1 : 1.04,
-      duration: 620,
-      ease: 'inOut(2.4)',
-    })
+    const rect = el.getBoundingClientRect()
+    const pct = ((clientX - rect.left) / rect.width) * 100
+    setPosition(Math.min(100, Math.max(0, pct)))
   }, [])
 
-  const hasCompare = Boolean(item.compare)
+  const handlePointerDown = (e: ReactPointerEvent<HTMLDivElement>) => {
+    draggingRef.current = true
+    e.currentTarget.setPointerCapture(e.pointerId)
+    updateFromClientX(e.clientX)
+  }
+  const handlePointerMove = (e: ReactPointerEvent<HTMLDivElement>) => {
+    if (!draggingRef.current) return
+    updateFromClientX(e.clientX)
+  }
+  const endDrag = () => {
+    draggingRef.current = false
+  }
 
+  const handleKeyDown = (e: ReactKeyboardEvent) => {
+    if (e.key === 'ArrowLeft') setPosition((p) => Math.max(0, p - 5))
+    else if (e.key === 'ArrowRight') setPosition((p) => Math.min(100, p + 5))
+    else if (e.key === 'Home') setPosition(0)
+    else if (e.key === 'End') setPosition(100)
+  }
+
+  return (
+    <div
+      ref={containerRef}
+      className="absolute inset-0 touch-none select-none"
+      style={{ cursor: 'ew-resize' }}
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={endDrag}
+      onPointerCancel={endDrag}
+    >
+      <Image
+        src={after.src}
+        alt={after.alt}
+        fill
+        sizes="(min-width: 1024px) 45vw, 100vw"
+        className="pointer-events-none object-cover grayscale-[35%]"
+      />
+      <div
+        className="pointer-events-none absolute inset-0 overflow-hidden"
+        style={{ clipPath: `inset(0 ${100 - position}% 0 0)` }}
+      >
+        <Image
+          src={before.src}
+          alt={before.alt}
+          fill
+          sizes="(min-width: 1024px) 45vw, 100vw"
+          className="object-cover grayscale-[35%]"
+        />
+      </div>
+
+      <span className="label-tech text-foreground/90 bg-background/70 pointer-events-none absolute top-5 left-5 px-3 py-1.5 backdrop-blur">
+        Antes
+      </span>
+      <span className="label-tech text-foreground/90 bg-background/70 pointer-events-none absolute top-5 right-5 px-3 py-1.5 backdrop-blur">
+        Depois
+      </span>
+
+      <div
+        className="pointer-events-none absolute inset-y-0 w-px bg-white/70"
+        style={{ left: `${position}%` }}
+        aria-hidden="true"
+      />
+      <div
+        role="slider"
+        tabIndex={0}
+        aria-label="Comparar antes e depois"
+        aria-valuenow={Math.round(position)}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        onKeyDown={handleKeyDown}
+        style={{ left: `${position}%` }}
+        className="border-border bg-background text-foreground focus-visible:ring-primary absolute top-1/2 flex h-10 w-10 -translate-x-1/2 -translate-y-1/2 items-center justify-center border shadow-lg focus-visible:ring-2 focus-visible:outline-none"
+      >
+        <ChevronsLeftRight className="h-4 w-4" aria-hidden="true" />
+      </div>
+    </div>
+  )
+}
+
+function CompareCard({ item }: { item: (typeof PORTFOLIO)[number] }) {
   return (
     <div className="border-border bg-background/55 group flex flex-col border backdrop-blur-sm">
       <div className="relative aspect-[4/3] overflow-hidden">
-        <Image
-          src={item.image || '/placeholder.svg'}
-          alt={item.imageAlt}
-          fill
-          sizes="(min-width: 1024px) 45vw, 100vw"
-          className="object-cover grayscale-[35%] transition-transform duration-700 group-hover:scale-[1.03]"
-        />
-        {item.compare && (
-          <div
-            ref={beforeRef}
-            className="absolute inset-0 opacity-0"
-            aria-hidden={!showBefore}
-          >
-            <Image
-              src={item.compare.image || '/placeholder.svg'}
-              alt={item.compare.alt}
-              fill
-              sizes="(min-width: 1024px) 45vw, 100vw"
-              className="object-cover grayscale-[35%]"
-            />
-          </div>
+        {item.compare ? (
+          <BeforeAfterSlider
+            before={{
+              src: item.compare.image || '/placeholder.svg',
+              alt: item.compare.alt,
+            }}
+            after={{ src: item.image || '/placeholder.svg', alt: item.imageAlt }}
+          />
+        ) : (
+          <Image
+            src={item.image || '/placeholder.svg'}
+            alt={item.imageAlt}
+            fill
+            sizes="(min-width: 1024px) 45vw, 100vw"
+            className="object-cover grayscale-[35%] transition-transform duration-700 group-hover:scale-[1.03]"
+          />
         )}
 
         {/* moldura técnica */}
@@ -70,21 +154,6 @@ function CompareCard({ item }: { item: (typeof PORTFOLIO)[number] }) {
         <span className="label-tech text-muted-foreground/80 bg-background/70 pointer-events-none absolute right-5 bottom-5 px-3 py-1.5 backdrop-blur">
           Imagem ilustrativa
         </span>
-
-        {hasCompare && (
-          <button
-            type="button"
-            onMouseEnter={() => toggle(true)}
-            onMouseLeave={() => toggle(false)}
-            onFocus={() => toggle(true)}
-            onBlur={() => toggle(false)}
-            onClick={() => toggle(!showBefore)}
-            aria-pressed={showBefore}
-            className="label-tech text-foreground border-border bg-background/85 hover:border-primary hover:text-primary focus-visible:ring-primary absolute bottom-5 left-5 border px-4 py-2.5 backdrop-blur transition-colors focus-visible:ring-1 focus-visible:outline-none"
-          >
-            {showBefore ? 'Ver depois' : 'Ver antes'}
-          </button>
-        )}
       </div>
 
       <div className="flex flex-1 flex-col p-6 sm:p-8">
