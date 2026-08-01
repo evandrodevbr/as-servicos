@@ -1,7 +1,7 @@
 'use client'
 
 import { animate, stagger } from 'animejs'
-import { Clock, Layers, Percent, Users } from 'lucide-react'
+import { Clock, Layers, Users } from 'lucide-react'
 import { useEffect, useRef } from 'react'
 
 const HEADLINE = ['Do projeto', 'à entrega,', 'engenharia e tecnologia', 'sob o mesmo teto.']
@@ -14,7 +14,6 @@ const HEADLINE = ['Do projeto', 'à entrega,', 'engenharia e tecnologia', 'sob o
 const DIFFERENTIATORS = [
   { Icon: Layers, label: '4 áreas de engenharia' },
   { Icon: Users, label: 'mesma equipe, do projeto à entrega' },
-  { Icon: Percent, label: 'honorário sobre custo de obra' },
   { Icon: Clock, label: 'hora técnica no software' },
 ]
 
@@ -128,7 +127,7 @@ export function Hero() {
 
         <div
           data-fade
-          className="reveal-init border-border mt-14 grid grid-cols-2 gap-x-4 gap-y-5 border-t pt-6 sm:grid-cols-4"
+          className="reveal-init border-border mt-14 grid grid-cols-1 gap-x-4 gap-y-5 border-t pt-6 sm:grid-cols-3"
         >
           {DIFFERENTIATORS.map(({ Icon, label }) => (
             <div key={label} className="flex items-center gap-3">
