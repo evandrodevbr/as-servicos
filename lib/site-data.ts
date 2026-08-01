@@ -143,8 +143,31 @@ export const PORTFOLIO: {
   },
 ]
 
-export const CONTACT_LINKS = [
-  { label: 'WhatsApp', value: '+55 (41) 9984-7511', href: 'https://wa.me/554199847511' },
-  { label: 'E-mail', value: 'eng.aservicos@gmail.com', href: 'mailto:eng.aservicos@gmail.com' },
+/**
+ * WhatsApp e e-mail ficam ofuscados (string invertida + base64) em vez de
+ * texto plano, para dificultar a raspagem automatizada por bots de spam
+ * que só leem o HTML bruto (regex por "mailto:", "wa.me/", padrão de
+ * e-mail etc.). São decodificados apenas no navegador, depois do mount —
+ * ver `components/site/contact-links.tsx`.
+ *
+ * Isso não impede um scraper sofisticado rodando navegador real (se um
+ * humano consegue ler, um sistema automatizado com recursos suficientes
+ * também consegue) — o objetivo é elevar o custo o bastante pra barrar a
+ * maioria dos bots simples de coleta em massa, não fornecer segurança real.
+ */
+export const OBFUSCATED_CONTACTS = {
+  whatsapp: {
+    label: 'WhatsApp',
+    encodedDisplay: 'MTE1Ny00ODk5ICkxNCggNTUr',
+    encodedDigits: 'MTE1NzQ4OTkxNDU1',
+  },
+  email: {
+    label: 'E-mail',
+    encoded: 'bW9jLmxpYW1nQHNvY2l2cmVzYS5nbmU=',
+  },
+}
+
+/** Links que não precisam de ofuscação (não são alvo de spam harvesting). */
+export const CONTACT_LINKS_PLAIN = [
   { label: 'LinkedIn', value: 'AS Serviços', href: 'https://www.linkedin.com/company/asilvaservicos' },
 ]

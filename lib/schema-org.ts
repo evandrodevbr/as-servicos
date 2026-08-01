@@ -1,14 +1,19 @@
-import { AREAS, CONTACT_LINKS } from '@/lib/site-data'
+import { AREAS, CONTACT_LINKS_PLAIN, OBFUSCATED_CONTACTS } from '@/lib/site-data'
 import { SITE_URL } from '@/lib/site-config'
+import { decodeObfuscated } from '@/lib/obfuscate'
 
-const whatsapp = CONTACT_LINKS.find((c) => c.label === 'WhatsApp')
-const email = CONTACT_LINKS.find((c) => c.label === 'E-mail')
-const linkedin = CONTACT_LINKS.find((c) => c.label === 'LinkedIn')
+// O e-mail/telefone aqui ficam em texto plano DE PROPÓSITO: isto é dado
+// estruturado (schema.org) lido por crawlers legítimos (Google, Bing) para
+// sinais de entidade/negócio local — ofuscar isso derrubaria justamente o
+// benefício de SEO que a marcação existe para dar. A ofuscação contra bots
+// de spam se aplica só aos links visíveis para humanos (ver
+// components/site/contact-links.tsx), não a este dado estruturado.
+const email = decodeObfuscated(OBFUSCATED_CONTACTS.email.encoded)
+const whatsappDigits = decodeObfuscated(OBFUSCATED_CONTACTS.whatsapp.encodedDigits)
+const linkedin = CONTACT_LINKS_PLAIN.find((c) => c.label === 'LinkedIn')
 
-/** Telefone da empresa em E.164, derivado do link wa.me já existente. */
-const TELEPHONE = whatsapp
-  ? `+${whatsapp.href.replace('https://wa.me/', '')}`
-  : undefined
+/** Telefone da empresa em E.164, derivado do WhatsApp já existente. */
+const TELEPHONE = whatsappDigits ? `+${whatsappDigits}` : undefined
 
 const serviceNodes = AREAS.map((area) => ({
   '@type': 'Service',
@@ -40,7 +45,7 @@ export const ORGANIZATION_SCHEMA = {
       image: `${SITE_URL}/logo.png`,
       description:
         'Engenharia civil, elétrica, eletrônica/automação e desenvolvimento de software sob um único responsável técnico, com projetos, laudos, automação e sistemas sob encomenda e precificação transparente.',
-      ...(email ? { email: email.value } : {}),
+      ...(email ? { email } : {}),
       ...(TELEPHONE ? { telephone: TELEPHONE } : {}),
       areaServed: { '@type': 'Country', name: 'Brasil' },
       ...(linkedin ? { sameAs: [linkedin.href] } : {}),

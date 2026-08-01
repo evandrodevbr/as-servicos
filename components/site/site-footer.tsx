@@ -1,5 +1,5 @@
 import Image from 'next/image'
-import { CONTACT_LINKS } from '@/lib/site-data'
+import { ContactLinksFooter } from '@/components/site/contact-links'
 
 const NAV = [
   { href: '#areas', label: 'Áreas' },
@@ -39,20 +39,7 @@ export function SiteFooter() {
             ))}
           </nav>
 
-          <ul className="flex flex-col gap-3">
-            {CONTACT_LINKS.map((c) => (
-              <li key={c.label}>
-                <a
-                  href={c.href}
-                  target={c.href.startsWith('http') ? '_blank' : undefined}
-                  rel={c.href.startsWith('http') ? 'noreferrer' : undefined}
-                  className="label-tech text-muted-foreground hover:text-primary transition-colors"
-                >
-                  {c.label}
-                </a>
-              </li>
-            ))}
-          </ul>
+          <ContactLinksFooter />
         </div>
 
         <div className="border-border mt-12 flex flex-col gap-2 border-t pt-6 sm:flex-row sm:items-center sm:justify-between">

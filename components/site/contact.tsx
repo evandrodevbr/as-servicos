@@ -4,7 +4,8 @@ import { useActionState } from 'react'
 import { useFormStatus } from 'react-dom'
 import { Reveal } from '@/components/motion/reveal'
 import { submitContact, type ContactState } from '@/app/actions/contact'
-import { CONTACT_AREAS, CONTACT_LINKS } from '@/lib/site-data'
+import { ContactLinksDetail } from '@/components/site/contact-links'
+import { CONTACT_AREAS } from '@/lib/site-data'
 
 const initialState: ContactState = { status: 'idle', message: '' }
 
@@ -53,26 +54,7 @@ export function Contact() {
               contexto você trouxer, mais preciso é o retorno técnico.
             </p>
 
-            <dl className="reveal-init flex flex-col">
-              {CONTACT_LINKS.map((c) => (
-                <div
-                  key={c.label}
-                  className="border-border flex items-baseline justify-between gap-6 border-t py-4 last:border-b"
-                >
-                  <dt className="label-tech text-muted-foreground">{c.label}</dt>
-                  <dd>
-                    <a
-                      href={c.href}
-                      target={c.href.startsWith('http') ? '_blank' : undefined}
-                      rel={c.href.startsWith('http') ? 'noreferrer' : undefined}
-                      className="text-foreground hover:text-primary text-sm transition-colors"
-                    >
-                      {c.value}
-                    </a>
-                  </dd>
-                </div>
-              ))}
-            </dl>
+            <ContactLinksDetail />
 
             <div className="reveal-init border-border bg-card/30 border p-6">
               <p className="label-tech text-muted-foreground">Retorno</p>
