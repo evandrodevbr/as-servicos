@@ -1,3 +1,4 @@
+import { ExternalLink } from 'lucide-react'
 import Image from 'next/image'
 import { Reveal } from '@/components/motion/reveal'
 import { AREAS, PORTFOLIO } from '@/lib/site-data'
@@ -83,34 +84,61 @@ export function Areas() {
                     </p>
                   )}
 
-                  {PORTFOLIO.filter((p) => p.areaId === area.id).map((p) => (
+                  {area.externalProof ? (
                     <a
-                      key={p.id}
-                      href="#portfolio"
+                      href={area.externalProof.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="border-border mt-8 flex items-center gap-4 border-t pt-6 transition-opacity hover:opacity-80"
                     >
-                      <span className="relative h-14 w-20 shrink-0 overflow-hidden">
-                        <Image
-                          src={p.image || '/placeholder.svg'}
-                          alt={p.imageAlt}
-                          fill
-                          sizes="80px"
-                          className="object-cover grayscale-[35%]"
+                      <span className="border-border bg-background/60 relative flex h-14 w-20 shrink-0 items-center justify-center overflow-hidden border">
+                        <ExternalLink
+                          className="text-primary h-5 w-5"
+                          aria-hidden="true"
                         />
                       </span>
                       <span className="flex flex-col gap-1">
                         <span className="label-tech text-primary">
-                          Exemplo de entrega
+                          {area.externalProof.label}
                         </span>
                         <span className="text-foreground text-sm leading-tight font-medium">
-                          {p.title}
+                          {area.externalProof.title}
                         </span>
                         <span className="label-tech text-muted-foreground">
-                          {p.local} · {p.ano} · ver no portfólio →
+                          {area.externalProof.meta}
                         </span>
                       </span>
                     </a>
-                  ))}
+                  ) : (
+                    PORTFOLIO.filter((p) => p.areaId === area.id).map((p) => (
+                      <a
+                        key={p.id}
+                        href="#portfolio"
+                        className="border-border mt-8 flex items-center gap-4 border-t pt-6 transition-opacity hover:opacity-80"
+                      >
+                        <span className="relative h-14 w-20 shrink-0 overflow-hidden">
+                          <Image
+                            src={p.image || '/placeholder.svg'}
+                            alt={p.imageAlt}
+                            fill
+                            sizes="80px"
+                            className="object-cover grayscale-[35%]"
+                          />
+                        </span>
+                        <span className="flex flex-col gap-1">
+                          <span className="label-tech text-primary">
+                            Exemplo de entrega
+                          </span>
+                          <span className="text-foreground text-sm leading-tight font-medium">
+                            {p.title}
+                          </span>
+                          <span className="label-tech text-muted-foreground">
+                            {p.local} · {p.ano} · ver no portfólio →
+                          </span>
+                        </span>
+                      </a>
+                    ))
+                  )}
                 </div>
               </div>
             </Reveal>

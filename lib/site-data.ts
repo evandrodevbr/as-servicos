@@ -17,6 +17,8 @@ export const AREAS: {
   items: string[]
   /** Preenchido só quando houver nome e registro reais para publicar. */
   specialist?: { name: string; role: string; registro: string }
+  /** Prova externa (fora do PORTFOLIO interno), quando fizer mais sentido linkar direto. */
+  externalProof?: { label: string; title: string; meta: string; href: string }
 }[] = [
   {
     id: 'civil',
@@ -73,6 +75,12 @@ export const AREAS: {
       'Integrações e APIs',
       'Consultoria de TI e infraestrutura',
     ],
+    externalProof: {
+      label: 'Portfólio de desenvolvimento',
+      title: 'evandro.dev.br',
+      meta: 'projetos pessoais · abrir ↗',
+      href: 'https://evandro.dev.br',
+    },
   },
 ]
 
