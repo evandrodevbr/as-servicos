@@ -37,7 +37,7 @@ export const ORGANIZATION_SCHEMA = {
       logo: `${SITE_URL}/logo.png`,
       image: `${SITE_URL}/logo.png`,
       description:
-        'Engenharia civil, elétrica, eletrônica/automação e desenvolvimento de software, com um profissional qualificado à frente de cada área — projetos, laudos, automação e sistemas sob encomenda, com precificação transparente.',
+        'Engenharia civil, elétrica, eletrônica/automação e desenvolvimento de software, com um profissional qualificado à frente de cada área. Projetos, laudos, automação e sistemas sob encomenda, com precificação transparente.',
       areaServed: { '@type': 'Country', name: 'Brasil' },
       ...(linkedin ? { sameAs: [linkedin.href] } : {}),
       makesOffer: serviceNodes.map((s) => ({ '@id': s['@id'] })),
@@ -54,7 +54,7 @@ export const ORGANIZATION_SCHEMA = {
       '@type': 'WebPage',
       '@id': `${SITE_URL}/#webpage`,
       url: SITE_URL,
-      name: 'AS Serviços — Engenharia e Tecnologia sob o mesmo teto',
+      name: 'AS Serviços · Engenharia e Tecnologia sob o mesmo teto',
       description:
         'Engenharia civil, elétrica, eletrônica/automação e desenvolvimento de software. Projetos, laudos, automação e sistemas sob encomenda com precificação transparente.',
       isPartOf: { '@id': `${SITE_URL}/#website` },

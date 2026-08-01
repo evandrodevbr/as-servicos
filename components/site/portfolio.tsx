@@ -337,7 +337,7 @@ export function Portfolio() {
             </h2>
             <p className="text-muted-foreground max-w-sm text-sm leading-relaxed">
               O registro fotográfico de cada obra está a caminho. Por enquanto,
-              as imagens abaixo ilustram o padrão de entrega — e isso está
+              as imagens abaixo ilustram o padrão de entrega, e isso está
               identificado em cada uma delas.
             </p>
           </div>

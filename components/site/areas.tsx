@@ -17,7 +17,7 @@ export function Areas() {
           </h2>
           <p className="text-muted-foreground reveal-init mt-6 max-w-2xl text-base leading-relaxed">
             Não somos fábrica de software nem construtora tradicional. Somos as duas
-            coisas juntas — o que permite resolver a obra, a instalação e o sistema
+            coisas juntas, o que permite resolver a obra, a instalação e o sistema
             que controla tudo sem transferir o problema para um terceiro.
           </p>
         </Reveal>

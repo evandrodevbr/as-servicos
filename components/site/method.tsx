@@ -9,7 +9,7 @@ const STEPS = [
   {
     n: '02',
     t: 'Projeto e orçamento',
-    d: 'Documentação técnica, memorial e planilha aberta de custos — sem valor fechado sem justificativa.',
+    d: 'Documentação técnica, memorial e planilha aberta de custos, sem valor fechado sem justificativa.',
   },
   {
     n: '03',
@@ -70,7 +70,7 @@ export function Method() {
                 combinado antes do primeiro commit.
               </p>
               <p className="text-muted-foreground mt-4 text-sm leading-relaxed">
-                Se a estimativa mudar, você é avisado antes — não na fatura.
+                Se a estimativa mudar, você é avisado antes, não na fatura.
               </p>
             </div>
           </Reveal>

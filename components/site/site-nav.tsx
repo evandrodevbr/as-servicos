@@ -37,7 +37,7 @@ export function SiteNav() {
         <a
           href="#top"
           className="group flex items-center gap-2"
-          aria-label="AS Serviços — início"
+          aria-label="AS Serviços · início"
         >
           <Image
             src="/logo.png"

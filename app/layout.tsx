@@ -19,7 +19,7 @@ const grotesk = Space_Grotesk({
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: 'AS Serviços — Engenharia e Tecnologia sob o mesmo teto',
+  title: 'AS Serviços · Engenharia e Tecnologia sob o mesmo teto',
   description:
     'Engenharia civil, elétrica, eletrônica/automação e desenvolvimento de software. Projetos, laudos, automação e sistemas sob encomenda com precificação transparente.',
   generator: 'v0.app',
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     canonical: '/',
   },
   openGraph: {
-    title: 'AS Serviços — Do projeto à entrega',
+    title: 'AS Serviços · Do projeto à entrega',
     description:
       'Engenharia multidisciplinar e desenvolvimento de software sob o mesmo teto.',
     url: '/',

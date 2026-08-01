@@ -39,7 +39,7 @@ export const AREAS: {
       'Dimensionamento de circuitos, proteção contra descargas atmosféricas e laudos que colocam a instalação em conformidade com as normas vigentes.',
     items: [
       'Projetos elétricos residenciais e comerciais',
-      'SPDA — sistemas de proteção contra descargas',
+      'SPDA, sistemas de proteção contra descargas',
       'Adequação e reforma de quadros',
       'Laudos técnicos e ART',
     ],
@@ -92,7 +92,7 @@ export const PORTFOLIO: {
     local: 'Zona Sul',
     ano: '2024',
     description:
-      'Da alvenaria exposta ao acabamento pronto, com orçamento fechado desde o início — sem reajuste surpresa no meio da obra.',
+      'Da alvenaria exposta ao acabamento pronto, com orçamento fechado desde o início, sem reajuste surpresa no meio da obra.',
     image: '/portfolio/reforma-depois.png',
     imageAlt:
       'Sala de apartamento reformada com piso de concreto polido, paredes brancas e caixilhos metálicos pretos',
@@ -108,7 +108,7 @@ export const PORTFOLIO: {
     local: 'Comercial',
     ano: '2024',
     description:
-      'Quadro refeito do zero, circuitos identificados e proteção contra descargas em conformidade — a segurança que não se vê, mas evita o pior.',
+      'Quadro refeito do zero, circuitos identificados e proteção contra descargas em conformidade. A segurança que não se vê, mas evita o pior.',
     image: '/portfolio/quadro-depois.jpg',
     imageAlt:
       'Quadro de distribuição elétrica novo com disjuntores alinhados e cabeamento organizado em canaletas',
@@ -124,7 +124,7 @@ export const PORTFOLIO: {
     local: 'Galpão logístico',
     ano: '2023',
     description:
-      'Câmeras posicionadas para cobrir cada ponto cego, rede certificada ponta a ponta e acesso remoto — para acompanhar sem precisar estar lá.',
+      'Câmeras posicionadas para cobrir cada ponto cego, rede certificada ponta a ponta e acesso remoto, para acompanhar sem precisar estar lá.',
     image: '/portfolio/cftv.png',
     imageAlt:
       'Rack de rede com patch panels, cabos azuis organizados e switch com LEDs acesos',

@@ -1,9 +1,22 @@
 'use client'
 
 import { animate, stagger } from 'animejs'
+import { Clock, Layers, Percent, Users } from 'lucide-react'
 import { useEffect, useRef } from 'react'
 
-const HEADLINE = ['Do projeto', 'à entrega —', 'engenharia e tecnologia', 'sob o mesmo teto.']
+const HEADLINE = ['Do projeto', 'à entrega,', 'engenharia e tecnologia', 'sob o mesmo teto.']
+
+/**
+ * Diferenciais qualitativos, não estatísticas — por isso viram ícone + texto
+ * em vez de um número grande estilizado (que pode ser lido como uma métrica
+ * real, tipo "4 anos de mercado" ou "01 = nota máxima").
+ */
+const DIFFERENTIATORS = [
+  { Icon: Layers, label: '4 áreas de engenharia' },
+  { Icon: Users, label: 'mesma equipe, do projeto à entrega' },
+  { Icon: Percent, label: 'honorário sobre custo de obra' },
+  { Icon: Clock, label: 'hora técnica no software' },
+]
 
 /**
  * A revelação do texto roda no mount, sincronizada com a duração fixa do
@@ -92,7 +105,7 @@ export function Hero() {
               className="text-muted-foreground reveal-init border-border/60 bg-background/70 max-w-md border-l py-1 pl-5 text-base leading-relaxed backdrop-blur-[2px]"
             >
               Engenheiros e desenvolvedores lado a lado. Obra, instalação elétrica,
-              automação e software feitos pela mesma equipe — com precificação
+              automação e software feitos pela mesma equipe, com precificação
               transparente desde a primeira conversa.
             </p>
 
@@ -115,19 +128,12 @@ export function Hero() {
 
         <div
           data-fade
-          className="reveal-init border-border mt-14 grid grid-cols-2 gap-px border-t pt-6 sm:grid-cols-4"
+          className="reveal-init border-border mt-14 grid grid-cols-2 gap-x-4 gap-y-5 border-t pt-6 sm:grid-cols-4"
         >
-          {[
-            ['04', 'áreas de engenharia'],
-            ['01', 'equipe, do projeto à entrega'],
-            ['%', 'honorário sobre custo de obra'],
-            ['h', 'hora técnica no software'],
-          ].map(([k, v]) => (
-            <div key={v} className="flex items-baseline gap-3">
-              <span className="font-display text-primary text-2xl leading-none font-bold">
-                {k}
-              </span>
-              <span className="label-tech text-muted-foreground">{v}</span>
+          {DIFFERENTIATORS.map(({ Icon, label }) => (
+            <div key={label} className="flex items-center gap-3">
+              <Icon className="text-primary h-5 w-5 shrink-0" aria-hidden="true" />
+              <span className="label-tech text-muted-foreground">{label}</span>
             </div>
           ))}
         </div>

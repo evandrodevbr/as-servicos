@@ -22,7 +22,7 @@ export function SiteFooter() {
               className="h-11 w-11 object-contain"
             />
             <p className="text-muted-foreground mt-3 text-sm leading-relaxed">
-              Engenharia civil, elétrica, eletrônica e de software — um
+              Engenharia civil, elétrica, eletrônica e de software, com um
               profissional qualificado à frente de cada área, sob o mesmo
               teto.
             </p>
