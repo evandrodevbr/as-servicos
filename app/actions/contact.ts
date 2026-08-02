@@ -1,5 +1,9 @@
 'use server'
 
+import { eq } from 'drizzle-orm'
+import { db } from '@/lib/db'
+import { pedidos } from '@/lib/db/schema'
+import { sendPushToAdmins } from '@/lib/push'
 import { CONTACT_AREAS } from '@/lib/site-data'
 
 export type ContactState = {
@@ -36,12 +40,30 @@ export async function submitContact(
     }
   }
 
-  // Envio simulado — integrar com e-mail/CRM quando o serviço estiver definido.
-  await new Promise((r) => setTimeout(r, 900))
-  console.log('[v0] Nova solicitação de contato:', { nome, email, telefone, area })
+  // `codigo` definitivo vem do autoincrement do SQLite (sem contador à parte,
+  // que seria fonte de corrida entre solicitações concorrentes): insere com
+  // um placeholder único, recupera o `id` gerado e atualiza pro valor final.
+  const placeholder = `PENDING-${crypto.randomUUID()}`
+  const [inserted] = await db
+    .insert(pedidos)
+    .values({ codigo: placeholder, nome, email, telefone, area, mensagem })
+    .returning({ id: pedidos.id })
+
+  const codigo = `AS-${inserted.id}`
+  await db.update(pedidos).set({ codigo }).where(eq(pedidos.id, inserted.id))
+
+  try {
+    await sendPushToAdmins({
+      title: `Novo pedido: ${codigo}`,
+      body: `${nome} · ${area}`,
+      url: '/dashboard',
+    })
+  } catch (err) {
+    console.error('Falha ao enviar notificação push:', err)
+  }
 
   return {
     status: 'success',
-    message: `Recebemos sua mensagem, ${nome.split(' ')[0]}. Retornamos em até 1 dia útil.`,
+    message: `Recebemos sua mensagem, ${nome.split(' ')[0]}. Seu código de acompanhamento é ${codigo}. Retornamos em até 1 dia útil.`,
   }
 }

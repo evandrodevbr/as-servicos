@@ -2,6 +2,7 @@ import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
 import { Inter, Space_Grotesk } from 'next/font/google'
 import { OrganizationSchema } from '@/components/seo/organization-schema'
+import { Toaster } from '@/components/ui/sonner'
 import { SITE_URL } from '@/lib/site-config'
 import './globals.css'
 
@@ -58,6 +59,7 @@ export default function RootLayout({
       <body className="bg-background text-foreground font-sans antialiased">
         <OrganizationSchema />
         {children}
+        <Toaster />
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>
