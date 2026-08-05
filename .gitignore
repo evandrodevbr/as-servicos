@@ -27,4 +27,11 @@ next-env.d.ts
 /.playwright/
 /.shannon/
 /.impeccable/
+
+# Metadados e planos locais do ambiente de agentes
+/.ignore
+/.opencode/
+/AGENTS.md
+/PRODUCT.md
+/docs/superpowers/
 .slim/deepwork/
