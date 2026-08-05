@@ -40,7 +40,7 @@ export function ContactLinksDetail() {
   const placeholder = OBFUSCATED_CONTACTS.email.label // só pra manter 3 linhas antes de resolver
 
   return (
-    <dl className="reveal-init flex flex-col">
+    <dl className="flex flex-col">
       {(contacts ?? [
         { label: OBFUSCATED_CONTACTS.whatsapp.label, value: '', href: '' },
         { label: placeholder, value: '', href: '' },
@@ -57,7 +57,7 @@ export function ContactLinksDetail() {
                 href={c.href}
                 target={c.href.startsWith('http') ? '_blank' : undefined}
                 rel={c.href.startsWith('http') ? 'noreferrer' : undefined}
-                className="text-foreground hover:text-primary text-sm transition-colors"
+                className="text-foreground hover:text-primary text-base font-medium transition-colors"
               >
                 {c.value}
               </a>
@@ -78,7 +78,7 @@ export function ContactLinksFooter() {
   const contacts = useResolvedContacts()
 
   return (
-    <ul className="flex flex-col gap-3">
+    <ul className="flex flex-col gap-1.5">
       {(contacts ?? [
         { label: OBFUSCATED_CONTACTS.whatsapp.label, value: '', href: '' },
         { label: OBFUSCATED_CONTACTS.email.label, value: '', href: '' },
@@ -90,7 +90,7 @@ export function ContactLinksFooter() {
             aria-disabled={!contacts}
             target={c.href.startsWith('http') ? '_blank' : undefined}
             rel={c.href.startsWith('http') ? 'noreferrer' : undefined}
-            className="label-tech text-muted-foreground hover:text-primary transition-colors"
+            className="label-tech text-muted-foreground hover:text-primary -my-1.5 block py-3 transition-colors"
           >
             {c.label}
           </a>

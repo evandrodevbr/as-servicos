@@ -64,9 +64,9 @@ export type PedidoStatus = (typeof PEDIDO_STATUS)[number]
 /**
  * `codigo` é derivado do autoincrement do próprio SQLite (id), não de um
  * contador mantido à mão — evita corrida de concorrência entre duas
- * solicitações simultâneas. Ver `app/actions/contact.ts` para o fluxo de
- * criação (insere com placeholder único, depois atualiza pro valor final
- * "AS-{id}").
+ * solicitações simultâneas. Ver `app/actions/servico-contact.ts` para o
+ * fluxo de criação (insere com placeholder único, depois atualiza pro valor
+ * final "AS-{id}").
  */
 export const pedidos = sqliteTable('pedidos', {
   id: integer('id').primaryKey({ autoIncrement: true }),
@@ -76,6 +76,8 @@ export const pedidos = sqliteTable('pedidos', {
   telefone: text('telefone').notNull(),
   area: text('area').notNull(),
   mensagem: text('mensagem').notNull(),
+  /** De onde o pedido veio: 'site' | 'dashboard' | 'servicos/{slug}'. */
+  origem: text('origem').notNull().default('site'),
   status: text('status', { enum: PEDIDO_STATUS }).notNull().default('novo'),
   createdAt: integer('created_at', { mode: 'timestamp' })
     .notNull()

@@ -1,12 +1,10 @@
 import { eq } from 'drizzle-orm'
-import { readFile } from 'node:fs/promises'
-import path from 'node:path'
 import { headers } from 'next/headers'
 import { NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { pedidoDocumentos } from '@/lib/db/schema'
-import { PEDIDO_STORAGE_DIR } from '@/lib/pedido-storage'
+import { getPedidoObject } from '@/lib/pedido-storage'
 
 export async function GET(
   _request: Request,
@@ -24,15 +22,14 @@ export async function GET(
     .where(eq(pedidoDocumentos.id, id))
   if (!doc?.thumbnailFilename) return new NextResponse('Sem miniatura', { status: 404 })
 
-  try {
-    const buffer = await readFile(path.join(PEDIDO_STORAGE_DIR, doc.thumbnailFilename))
-    return new NextResponse(buffer, {
-      headers: {
-        'Content-Type': 'image/webp',
-        'Cache-Control': 'private, max-age=3600',
-      },
-    })
-  } catch {
-    return new NextResponse('Arquivo ausente no disco', { status: 404 })
-  }
+  const object = await getPedidoObject(doc.thumbnailFilename)
+  if (!object) return new NextResponse('Arquivo ausente no storage', { status: 404 })
+
+  return new NextResponse(object.body, {
+    headers: {
+      'Content-Type': 'image/webp',
+      'Content-Length': String(object.contentLength ?? object.body.length),
+      'Cache-Control': 'private, max-age=3600',
+    },
+  })
 }

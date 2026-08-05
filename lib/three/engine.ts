@@ -1,14 +1,35 @@
 import * as THREE from 'three'
-
-/* -------------------------------------------------------------------------- */
-/*  Types & helpers                                                            */
-/* -------------------------------------------------------------------------- */
+import { buildCivilPlant } from './scenes/civil'
+import { buildEletricaDiagram } from './scenes/eletrica'
+import { addPart, edges, type Part, type SceneMaterials } from './scenes/helpers'
+import { buildTechCloud } from './scenes/tech'
 
 export type Quality = 'high' | 'medium' | 'low' | 'static'
 
-const GRAY = 0x9aa0a6
-const BLUE = 0x2f6bff
-const DIM = 0x4a4f55
+/**
+ * Paleta 3D por variante — espelha as cores de UI dos temas por área
+ * (`[data-theme]` em `app/globals.css`). `home` preserva o azul elétrico
+ * original da landing.
+ */
+export type ScenePalette = {
+  /** wireframe estrutural */
+  gray: number
+  /** destaques da área (equivale ao azul original) */
+  accent: number
+  /** grid/fundo */
+  dim: number
+  /** pontos energizados / nós luminosos (amarelo elétrica, ciano tech, âmbar civil) */
+  glow?: number
+}
+
+export type SceneVariant = 'home' | 'civil' | 'eletrica' | 'tech'
+
+export const SCENE_PALETTES: Record<SceneVariant, ScenePalette> = {
+  home: { gray: 0x6b7279, accent: 0x2f6bff, dim: 0x858b91 },
+  civil: { gray: 0x6b7279, accent: 0xeba941, dim: 0x858b91, glow: 0xeba941 },
+  eletrica: { gray: 0x6b7279, accent: 0x008bff, dim: 0x858b91, glow: 0xf6c835 },
+  tech: { gray: 0x6b7279, accent: 0x7f6afc, dim: 0x858b91, glow: 0x00e0e0 },
+}
 
 const clamp = (v: number, a = 0, b = 1) => Math.min(b, Math.max(a, v))
 const smoothstep = (edge0: number, edge1: number, x: number) => {
@@ -17,53 +38,39 @@ const smoothstep = (edge0: number, edge1: number, x: number) => {
 }
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t
 
-type Part = {
-  obj: THREE.Object3D
-  base: THREE.Vector3
-  explode: THREE.Vector3
-  scatter: THREE.Vector3
-  baseRot: THREE.Euler
-  explodeRot: THREE.Euler
-  scatterRot: THREE.Euler
-  delay: number
-}
-
-function edges(
-  geo: THREE.BufferGeometry,
-  mat: THREE.LineBasicMaterial,
-  threshold = 1,
-) {
-  const e = new THREE.EdgesGeometry(geo, threshold)
-  geo.dispose()
-  return new THREE.LineSegments(e, mat)
-}
-
 /* -------------------------------------------------------------------------- */
 /*  Engine                                                                     */
 /* -------------------------------------------------------------------------- */
 
+/**
+ * Motor 3D procedural — cada variante monta um par de atores (A → B) com a
+ * mesma mecânica: scatter de entrada, explosão e recombinação dirigidas pelo
+ * scroll, câmera por keyframes, partículas e grid técnico.
+ */
 export class SceneEngine {
   private renderer: THREE.WebGLRenderer
   private scene: THREE.Scene
   private camera: THREE.PerspectiveCamera
+  private canvas: HTMLCanvasElement
   private root = new THREE.Group()
-  private houseGroup = new THREE.Group()
-  private boardGroup = new THREE.Group()
-  private houseParts: Part[] = []
-  private boardParts: Part[] = []
+  private groupA = new THREE.Group()
+  private groupB = new THREE.Group()
+  private partsA: Part[] = []
+  private partsB: Part[] = []
   private materials: THREE.Material[] = []
   private points?: THREE.Points
   private pointsMat?: THREE.PointsMaterial
   private grid?: THREE.LineSegments
   private gridMat?: THREE.LineBasicMaterial
 
-  private matHouseGray!: THREE.LineBasicMaterial
-  private matHouseBlue!: THREE.LineBasicMaterial
-  private matBoardGray!: THREE.LineBasicMaterial
-  private matBoardBlue!: THREE.LineBasicMaterial
+  private matAGray!: THREE.LineBasicMaterial
+  private matAAccent!: THREE.LineBasicMaterial
+  private matBGray!: THREE.LineBasicMaterial
+  private matBAccent!: THREE.LineBasicMaterial
 
   private raf = 0
   private disposed = false
+  private variant: SceneVariant
   private quality: Quality
   private reducedMotion: boolean
 
@@ -80,9 +87,16 @@ export class SceneEngine {
   private lastTime = 0
   private elapsed = 0
 
-  constructor(canvas: HTMLCanvasElement, quality: Quality, reducedMotion: boolean) {
+  constructor(
+    canvas: HTMLCanvasElement,
+    quality: Quality,
+    reducedMotion: boolean,
+    variant: SceneVariant = 'home',
+  ) {
+    this.variant = variant
     this.quality = quality
     this.reducedMotion = reducedMotion
+    this.canvas = canvas
 
     this.renderer = new THREE.WebGLRenderer({
       canvas,
@@ -107,19 +121,19 @@ export class SceneEngine {
     this.camera.position.set(0, 1.6, 10)
 
     this.scene.add(this.root)
-    this.root.add(this.houseGroup, this.boardGroup)
+    this.root.add(this.groupA, this.groupB)
 
-    this.buildMaterials()
-    this.buildHouse()
-    this.buildBoard()
-    this.buildAmbient()
+    const palette = SCENE_PALETTES[variant]
+    this.buildMaterials(palette)
+    this.buildScenes()
+    this.buildAmbient(palette)
 
     this.resize()
   }
 
   /* ------------------------------ construction ---------------------------- */
 
-  private buildMaterials() {
+  private buildMaterials(palette: ScenePalette) {
     const mk = (color: number, opacity: number) => {
       const m = new THREE.LineBasicMaterial({
         color,
@@ -129,60 +143,73 @@ export class SceneEngine {
       this.materials.push(m)
       return m
     }
-    this.matHouseGray = mk(GRAY, 0.55)
-    this.matHouseBlue = mk(BLUE, 0.95)
-    this.matBoardGray = mk(GRAY, 0.55)
-    this.matBoardBlue = mk(BLUE, 0.95)
+    this.matAGray = mk(palette.gray, 0.55)
+    this.matAAccent = mk(palette.accent, 0.95)
+    this.matBGray = mk(palette.gray, 0.55)
+    this.matBAccent = mk(palette.accent, 0.95)
   }
 
-  private addPart(
-    list: Part[],
-    group: THREE.Group,
-    obj: THREE.Object3D,
-    base: [number, number, number],
-    explode: [number, number, number],
-    opts: {
-      explodeRot?: [number, number, number]
-      baseRot?: [number, number, number]
-      delay?: number
-    } = {},
-  ) {
-    const scatterRadius = this.quality === 'low' ? 8 : 14
-    const scatter = new THREE.Vector3(
-      (Math.random() - 0.5) * scatterRadius * 2,
-      (Math.random() - 0.5) * scatterRadius,
-      (Math.random() - 0.5) * scatterRadius - 4,
-    )
-    const baseRot = new THREE.Euler(...(opts.baseRot ?? [0, 0, 0]))
-    const part: Part = {
-      obj,
-      base: new THREE.Vector3(...base),
-      explode: new THREE.Vector3(...explode),
-      scatter,
-      baseRot,
-      explodeRot: new THREE.Euler(...(opts.explodeRot ?? [0, 0, 0])).set(
-        baseRot.x + (opts.explodeRot?.[0] ?? 0),
-        baseRot.y + (opts.explodeRot?.[1] ?? 0),
-        baseRot.z + (opts.explodeRot?.[2] ?? 0),
-      ),
-      scatterRot: new THREE.Euler(
-        (Math.random() - 0.5) * 3,
-        (Math.random() - 0.5) * 3,
-        (Math.random() - 0.5) * 3,
-      ),
-      delay: opts.delay ?? Math.random() * 0.35,
+  /** Material de pontos luminosos (glow da área) usado pelos atores. */
+  private glowMaterial(color: number, size: number): THREE.PointsMaterial {
+    const m = new THREE.PointsMaterial({
+      color,
+      size: this.quality === 'low' ? 5 : size,
+      sizeAttenuation: false,
+      transparent: true,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    })
+    this.materials.push(m)
+    return m
+  }
+
+  /** Monta o par de atores A→B da variante. */
+  private buildScenes() {
+    const palette = SCENE_PALETTES[this.variant]
+    const m: SceneMaterials = { gray: this.matAGray, accent: this.matAAccent }
+    const mb: SceneMaterials = {
+      gray: this.matBGray,
+      accent: this.matBAccent,
+      glow: this.glowMaterial(palette.glow ?? palette.accent, 7),
     }
-    obj.position.copy(part.scatter)
-    group.add(obj)
-    list.push(part)
+
+    switch (this.variant) {
+      case 'civil':
+        this.buildHouse(this.partsA, this.groupA, m, { electrical: false })
+        buildCivilPlant(this.partsB, this.groupB, mb, this.quality)
+        break
+      case 'eletrica':
+        this.buildHouse(this.partsA, this.groupA, m, { electrical: true })
+        buildEletricaDiagram(this.partsB, this.groupB, mb, this.quality)
+        break
+      case 'tech':
+        this.buildBoard(this.partsA, this.groupA, m)
+        buildTechCloud(this.partsB, this.groupB, mb, this.quality)
+        break
+      default:
+        // home: casa (com instalação) → placa-mãe, paleta azul original
+        this.buildHouse(this.partsA, this.groupA, m, { electrical: true })
+        this.buildBoard(this.partsB, this.groupB, mb)
+    }
+
+    this.groupB.position.y = -0.3
   }
 
   /** Wireframe house: foundation → walls → roof → elétrica / SPDA */
-  private buildHouse() {
-    const g = this.matHouseGray
-    const b = this.matHouseBlue
-    const P = (o: THREE.Object3D, base: [number, number, number], ex: [number, number, number], opt = {}) =>
-      this.addPart(this.houseParts, this.houseGroup, o, base, ex, opt)
+  private buildHouse(
+    parts: Part[],
+    group: THREE.Group,
+    m: SceneMaterials,
+    opts: { electrical: boolean },
+  ) {
+    const g = m.gray
+    const b = m.accent
+    const P = (
+      o: THREE.Object3D,
+      base: [number, number, number],
+      ex: [number, number, number],
+      opt = {},
+    ) => addPart(parts, group, o, base, ex, opt, this.quality)
 
     // Fundação
     P(edges(new THREE.BoxGeometry(4.8, 0.4, 3.6), g), [0, -1.7, 0], [0, -3.4, 0])
@@ -234,7 +261,9 @@ export class SceneEngine {
       )
     }
 
-    // ---------- Instalação elétrica (azul) ----------
+    if (!opts.electrical) return
+
+    // ---------- Instalação elétrica (accent) ----------
     const conduitPts = [
       new THREE.Vector3(-2.0, 0.9, 1.5),
       new THREE.Vector3(0, 0.9, 1.5),
@@ -284,29 +313,28 @@ export class SceneEngine {
       new THREE.Vector3(0, 1.3, 0),
       new THREE.Vector3(1.9, 0.4, 1.5),
     ])
-    const nodeMat = new THREE.PointsMaterial({
-      color: BLUE,
-      size: this.quality === 'low' ? 5 : 7,
-      sizeAttenuation: false,
-      transparent: true,
-      blending: THREE.AdditiveBlending,
-      depthWrite: false,
-    })
-    this.materials.push(nodeMat)
-    P(new THREE.Points(nodeGeo, nodeMat), [0, 0, 0], [0, 2.4, 0])
+    P(
+      new THREE.Points(nodeGeo, this.glowMaterial(m.glow?.color.getHex() ?? m.accent.color.getHex(), 7)),
+      [0, 0, 0],
+      [0, 2.4, 0],
+    )
   }
 
   /** Placa-mãe: PCB → CPU → memórias → trilhas → cabos */
-  private buildBoard() {
-    const g = this.matBoardGray
-    const b = this.matBoardBlue
-    const P = (o: THREE.Object3D, base: [number, number, number], ex: [number, number, number], opt = {}) =>
-      this.addPart(this.boardParts, this.boardGroup, o, base, ex, opt)
+  private buildBoard(parts: Part[], group: THREE.Group, m: SceneMaterials) {
+    const g = m.gray
+    const b = m.accent
+    const P = (
+      o: THREE.Object3D,
+      base: [number, number, number],
+      ex: [number, number, number],
+      opt = {},
+    ) => addPart(parts, group, o, base, ex, opt, this.quality)
 
     // PCB
     P(edges(new THREE.BoxGeometry(5.2, 0.12, 3.6), g), [0, 0, 0], [0, -1.6, 0])
 
-    // Trilhas (azul) sobre o PCB
+    // Trilhas (accent) sobre o PCB
     const traces: THREE.Vector3[] = []
     for (let i = 0; i < 14; i++) {
       const z = -1.5 + (i / 13) * 3
@@ -399,22 +427,15 @@ export class SceneEngine {
       new THREE.Vector3(-2.0, 0.4, 1.4),
       new THREE.Vector3(2.2, 0.12, -1.4),
     ])
-    const nodeMat = new THREE.PointsMaterial({
-      color: BLUE,
-      size: this.quality === 'low' ? 5 : 8,
-      sizeAttenuation: false,
-      transparent: true,
-      blending: THREE.AdditiveBlending,
-      depthWrite: false,
-    })
-    this.materials.push(nodeMat)
-    P(new THREE.Points(nodeGeo, nodeMat), [0, 0, 0], [0, 2.2, 0])
-
-    this.boardGroup.position.y = -0.3
+    P(
+      new THREE.Points(nodeGeo, this.glowMaterial(m.glow?.color.getHex() ?? m.accent.color.getHex(), 8)),
+      [0, 0, 0],
+      [0, 2.2, 0],
+    )
   }
 
   /** Poeira estelar + grid de chão */
-  private buildAmbient() {
+  private buildAmbient(palette: ScenePalette) {
     const count =
       this.quality === 'high' ? 1400 : this.quality === 'medium' ? 700 : 260
     const pos = new Float32Array(count * 3)
@@ -445,7 +466,7 @@ export class SceneEngine {
       lines.push(new THREE.Vector3(i, 0, -half), new THREE.Vector3(i, 0, half))
     }
     this.gridMat = new THREE.LineBasicMaterial({
-      color: DIM,
+      color: palette.dim,
       transparent: true,
       opacity: 0.18,
     })
@@ -551,23 +572,21 @@ export class SceneEngine {
     const intro = this.intro
 
     const isStatic = this.quality === 'static'
-    const houseOpacity = 1 - smoothstep(0.44, 0.56, p)
-    const boardOpacity = smoothstep(0.46, 0.6, p)
-    const houseExplode = isStatic ? 0 : smoothstep(0.08, 0.44, p)
-    const boardExplode = isStatic ? 0 : smoothstep(0.6, 0.92, p)
+    const aOpacity = 1 - smoothstep(0.44, 0.56, p)
+    const bOpacity = smoothstep(0.46, 0.6, p)
+    const aExplode = isStatic ? 0 : smoothstep(0.08, 0.44, p)
+    const bExplode = isStatic ? 0 : smoothstep(0.6, 0.92, p)
 
-    this.houseGroup.visible = houseOpacity > 0.01
-    this.boardGroup.visible = boardOpacity > 0.01
+    this.groupA.visible = aOpacity > 0.01
+    this.groupB.visible = bOpacity > 0.01
 
-    this.matHouseGray.opacity = 0.55 * houseOpacity * intro
-    this.matHouseBlue.opacity = (0.55 + 0.45 * smoothstep(0.2, 0.42, p)) * houseOpacity * intro
-    this.matBoardGray.opacity = 0.55 * boardOpacity
-    this.matBoardBlue.opacity = (0.6 + 0.4 * smoothstep(0.6, 0.85, p)) * boardOpacity
+    this.matAGray.opacity = 0.55 * aOpacity * intro
+    this.matAAccent.opacity = (0.55 + 0.45 * smoothstep(0.2, 0.42, p)) * aOpacity * intro
+    this.matBGray.opacity = 0.55 * bOpacity
+    this.matBAccent.opacity = (0.6 + 0.4 * smoothstep(0.6, 0.85, p)) * bOpacity
 
-    if (this.houseGroup.visible)
-      this.applyParts(this.houseParts, houseExplode, intro, time)
-    if (this.boardGroup.visible)
-      this.applyParts(this.boardParts, boardExplode, 1, time)
+    if (this.groupA.visible) this.applyParts(this.partsA, aExplode, intro, time)
+    if (this.groupB.visible) this.applyParts(this.partsB, bExplode, 1, time)
 
     // rotação global contínua + parallax de mouse
     this.root.rotation.y = isStatic ? -0.35 : -0.5 + p * 2.4 + this.pointer.x * 0.18
@@ -611,9 +630,11 @@ export class SceneEngine {
   }
 
   resize() {
-    const w = window.innerWidth
-    const h = window.innerHeight
-    this.camera.aspect = w / Math.max(h, 1)
+    // usa o tamanho do container do canvas (hero da página ou viewport)
+    const rect = this.canvas.getBoundingClientRect()
+    const w = Math.max(rect.width, 1)
+    const h = Math.max(rect.height, 1)
+    this.camera.aspect = w / h
     // afasta a câmera em telas estreitas para a cena caber inteira
     this.distanceScale =
       this.camera.aspect < 1 ? 1.7 : this.camera.aspect < 1.4 ? 1.35 : 1.18

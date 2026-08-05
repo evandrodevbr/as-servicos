@@ -1,5 +1,6 @@
 import type { MetadataRoute } from 'next'
 import { SITE_URL } from '@/lib/site-config'
+import { SERVICOS_SLUGS } from '@/lib/site-data'
 
 /**
  * Data da última alteração *significativa* de conteúdo (textos, portfólio,
@@ -18,18 +19,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
     {
       url: SITE_URL,
       lastModified: LAST_CONTENT_UPDATE,
-      // `changeFrequency` e `priority` foram deliberadamente omitidos:
-      // o Google os ignora desde 2023 (confirmado pela documentação oficial),
-      // e mantê-los é apenas ruído/manutenção sem benefício de SEO.
     },
-    // Site de página única (App Router, sem rotas adicionais além de `/`).
-    // As âncoras de navegação (#areas, #portfolio, #metodo, #contato) NÃO
-    // devem virar entradas separadas no sitemap: para o Googlebot elas
-    // resolvem para o mesmo recurso `/` (fragmentos de URL são descartados
-    // antes do rastreamento), então listá-las criaria URLs duplicadas
-    // apontando para o mesmo conteúdo — um antipadrão comum de sitemap.
-    // Se o site ganhar rotas reais (ex.: /blog, /servicos/[slug]), adicione
-    // uma entrada por rota aqui, mantendo o limite de 50.000 URLs / 50MB por
-    // arquivo (dividir com sitemap index se ultrapassar).
+    ...SERVICOS_SLUGS.map((slug) => ({
+      url: `${SITE_URL}/servicos/${slug}`,
+      lastModified: '2026-08-05',
+    })),
   ]
 }

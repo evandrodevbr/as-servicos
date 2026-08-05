@@ -22,3 +22,9 @@ node_modules
 # TypeScript
 *.tsbuildinfo
 next-env.d.ts
+
+# Artefatos locais de inspeção e ferramentas
+/.playwright/
+/.shannon/
+/.impeccable/
+.slim/deepwork/

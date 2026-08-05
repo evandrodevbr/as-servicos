@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { desc } from 'drizzle-orm'
 import { PedidosTable } from '@/components/dashboard/pedidos-table'
+import { NovoPedidoDialog } from '@/components/dashboard/novo-pedido-dialog'
 import { PushToggle } from '@/components/dashboard/push-toggle'
 import { SignOutButton } from '@/components/dashboard/sign-out-button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -33,10 +34,11 @@ export default async function DashboardPage() {
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Pedidos</h1>
           <p className="text-muted-foreground text-sm">
-            Solicitações recebidas pelo formulário de contato do site.
+            Pedidos recebidos pelo site e registrados internamente.
           </p>
         </div>
         <div className="flex items-center gap-3">
+          <NovoPedidoDialog />
           <PushToggle />
           <SignOutButton />
         </div>

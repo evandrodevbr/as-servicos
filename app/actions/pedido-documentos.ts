@@ -1,8 +1,6 @@
 'use server'
 
 import { randomUUID } from 'node:crypto'
-import { mkdir, unlink, writeFile } from 'node:fs/promises'
-import path from 'node:path'
 import { eq } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
 import { headers } from 'next/headers'
@@ -10,7 +8,7 @@ import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { pedidoDocumentos } from '@/lib/db/schema'
 import { generatePdfThumbnail } from '@/lib/document-preview'
-import { PEDIDO_STORAGE_DIR as STORAGE_DIR } from '@/lib/pedido-storage'
+import { deletePedidoObject, putPedidoObject } from '@/lib/pedido-storage'
 
 const ALLOWED_EXT: Record<string, string> = {
   'application/pdf': 'pdf',
@@ -35,7 +33,6 @@ export async function getDocumentosForPedido(pedidoId: number) {
 
 export async function uploadDocumentos(pedidoId: number, formData: FormData) {
   await requireSession()
-  await mkdir(STORAGE_DIR, { recursive: true })
 
   const files = formData.getAll('files').filter((f): f is File => f instanceof File)
 
@@ -48,27 +45,40 @@ export async function uploadDocumentos(pedidoId: number, formData: FormData) {
     const buffer = Buffer.from(await file.arrayBuffer())
     const id = randomUUID()
     const filename = `${id}.${ext}`
-    await writeFile(path.join(STORAGE_DIR, filename), buffer)
+    const key = await putPedidoObject(filename, buffer, file.type)
 
     let thumbnailFilename: string | null = null
-    if (file.type === 'application/pdf') {
-      try {
-        const thumb = await generatePdfThumbnail(buffer)
-        thumbnailFilename = `${id}-thumb.webp`
-        await writeFile(path.join(STORAGE_DIR, thumbnailFilename), thumb)
-      } catch (err) {
-        console.error('Falha ao gerar miniatura de PDF:', err)
+    let thumbnailKey: string | null = null
+    try {
+      if (file.type === 'application/pdf') {
+        try {
+          const thumb = await generatePdfThumbnail(buffer)
+          thumbnailFilename = `${id}-thumb.webp`
+          thumbnailKey = await putPedidoObject(thumbnailFilename, thumb, 'image/webp')
+        } catch (err) {
+          console.error('Falha ao gerar miniatura de PDF:', err)
+        }
       }
-    }
 
-    await db.insert(pedidoDocumentos).values({
-      pedidoId,
-      filename,
-      originalName: file.name,
-      mimeType: file.type,
-      tamanhoBytes: buffer.length,
-      thumbnailFilename,
-    })
+      await db.insert(pedidoDocumentos).values({
+        pedidoId,
+        filename: key,
+        originalName: file.name,
+        mimeType: file.type,
+        tamanhoBytes: buffer.length,
+        thumbnailFilename: thumbnailKey,
+      })
+    } catch (error) {
+      await deletePedidoObject(key).catch((cleanupError) => {
+        console.error('Falha ao limpar objeto R2 após erro no banco:', cleanupError)
+      })
+      if (thumbnailKey) {
+        await deletePedidoObject(thumbnailKey).catch((cleanupError) => {
+          console.error('Falha ao limpar miniatura R2 após erro no banco:', cleanupError)
+        })
+      }
+      throw error
+    }
   }
 
   revalidatePath('/dashboard')
@@ -83,9 +93,13 @@ export async function deleteDocumento(id: number) {
   if (!doc) return
 
   await db.delete(pedidoDocumentos).where(eq(pedidoDocumentos.id, id))
-  await unlink(path.join(STORAGE_DIR, doc.filename)).catch(() => {})
+  await deletePedidoObject(doc.filename).catch((error) => {
+    console.error('Falha ao limpar objeto R2:', error)
+  })
   if (doc.thumbnailFilename) {
-    await unlink(path.join(STORAGE_DIR, doc.thumbnailFilename)).catch(() => {})
+    await deletePedidoObject(doc.thumbnailFilename).catch((error) => {
+      console.error('Falha ao limpar miniatura R2:', error)
+    })
   }
   revalidatePath('/dashboard')
 }

@@ -2,14 +2,31 @@
 
 import { animate } from 'animejs'
 import { useEffect, useRef, useState } from 'react'
-import { detectQuality, SceneEngine, type Quality } from '@/lib/three/engine'
+import {
+  detectQuality,
+  SceneEngine,
+  type Quality,
+  type SceneVariant,
+} from '@/lib/three/engine'
 
 type Props = {
   onReady?: () => void
+  /** Variante da cena (home = casa → placa-mãe original). */
+  variant?: SceneVariant
+  /** true: ocupa o container (hero de página de serviço); false: viewport fixo (home). */
+  contained?: boolean
+  /** true: progresso do scroll relativo ao hero (min-h-80svh), não à página inteira. */
+  heroProgress?: boolean
 }
 
-export function SceneCanvas({ onReady }: Props) {
+export function SceneCanvas({
+  onReady,
+  variant = 'home',
+  contained = false,
+  heroProgress = false,
+}: Props) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
+  const wrapperRef = useRef<HTMLDivElement | null>(null)
   const [quality, setQuality] = useState<Quality | null>(null)
   const readyRef = useRef(onReady)
   readyRef.current = onReady
@@ -23,7 +40,7 @@ export function SceneCanvas({ onReady }: Props) {
 
     let engine: SceneEngine | null = null
     try {
-      engine = new SceneEngine(canvas, q, q === 'static')
+      engine = new SceneEngine(canvas, q, q === 'static', variant)
     } catch (err) {
       console.log('[v0] WebGL indisponível, usando fallback estático:', err)
       readyRef.current?.()
@@ -32,9 +49,19 @@ export function SceneCanvas({ onReady }: Props) {
 
     const scrollState = { value: 0 }
     const computeProgress = () => {
-      const max = document.documentElement.scrollHeight - window.innerHeight
-      scrollState.value = max > 0 ? window.scrollY / max : 0
+      if (heroProgress) {
+        // transição A→B acontece enquanto o hero (min-h-80svh) está na tela
+        const heroH = window.innerHeight * 0.8
+        scrollState.value = Math.min(1, Math.max(0, window.scrollY / heroH))
+      } else {
+        const max = document.documentElement.scrollHeight - window.innerHeight
+        scrollState.value = max > 0 ? window.scrollY / max : 0
+      }
       engine!.targetProgress = scrollState.value
+      wrapperRef.current?.setAttribute(
+        'data-progress',
+        String(Math.round(scrollState.value * 100)),
+      )
     }
 
     const onScroll = () => computeProgress()
@@ -97,13 +124,15 @@ export function SceneCanvas({ onReady }: Props) {
       engine?.dispose()
       engine = null
     }
-  }, [])
+  }, [variant])
 
   return (
     <div
-      className="pointer-events-none fixed inset-0 z-0"
+      ref={wrapperRef}
+      className={`pointer-events-none z-0 ${contained ? 'absolute inset-0' : 'fixed inset-0'}`}
       aria-hidden="true"
       data-quality={quality ?? 'detecting'}
+      data-variant={variant}
     >
       <canvas ref={canvasRef} className="h-full w-full" />
       {/* vinheta: mantém o texto legível sobre a cena */}

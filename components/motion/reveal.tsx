@@ -1,7 +1,7 @@
 'use client'
 
 import { animate, stagger } from 'animejs'
-import { useEffect, useRef, type ElementType, type ReactNode } from 'react'
+import { useLayoutEffect, useRef, type ElementType, type ReactNode } from 'react'
 
 type RevealProps = {
   children: ReactNode
@@ -16,6 +16,12 @@ type RevealProps = {
   once?: boolean
 }
 
+/**
+ * Animação de entrada por progressive enhancement: o conteúdo é sempre
+ * renderizado visível (SSR/no-JS/imprimindo). Com JS ativo e sem
+ * prefers-reduced-motion, o elemento é ocultado via useLayoutEffect antes do
+ * primeiro paint e animado quando entra no viewport.
+ */
 export function Reveal({
   children,
   className,
@@ -27,20 +33,14 @@ export function Reveal({
 }: RevealProps) {
   const ref = useRef<HTMLElement | null>(null)
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const el = ref.current
     if (!el) return
 
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    const targets: Element[] = useStagger ? Array.from(el.children) : [el]
+    if (reduced) return
 
-    if (reduced) {
-      targets.forEach((t) => {
-        ;(t as HTMLElement).style.opacity = '1'
-        ;(t as HTMLElement).style.transform = 'none'
-      })
-      return
-    }
+    const targets: Element[] = useStagger ? Array.from(el.children) : [el]
 
     targets.forEach((t) => {
       ;(t as HTMLElement).style.opacity = '0'

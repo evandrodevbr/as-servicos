@@ -4,31 +4,37 @@ import { eq } from 'drizzle-orm'
 import { db } from '@/lib/db'
 import { pedidos } from '@/lib/db/schema'
 import { sendPushToAdmins } from '@/lib/push'
-import { CONTACT_AREAS } from '@/lib/site-data'
+import { SERVICOS_PAGES } from '@/lib/site-data'
 
-export type ContactState = {
+export type ServicoContactState = {
   status: 'idle' | 'success' | 'error'
   message: string
-  errors?: Partial<Record<'nome' | 'email' | 'telefone' | 'area' | 'mensagem', string>>
+  errors?: Partial<Record<'nome' | 'email' | 'telefone' | 'mensagem', string>>
 }
 
-export async function submitContact(
-  _prev: ContactState,
+/**
+ * Contato feito pelo formulário da página de serviço. A área é fixa da
+ * página (sem select) e o pedido chega ao dashboard com a tag de origem
+ * `servicos/{slug}` — o painel mostra "Página de {área}".
+ */
+export async function submitServicoContact(
+  slug: string,
+  _prev: ServicoContactState,
   formData: FormData,
-): Promise<ContactState> {
+): Promise<ServicoContactState> {
+  const page = SERVICOS_PAGES.find((p) => p.slug === slug)
+  if (!page) return { status: 'error', message: 'Página inválida.' }
+
   const nome = String(formData.get('nome') ?? '').trim()
   const email = String(formData.get('email') ?? '').trim()
   const telefone = String(formData.get('telefone') ?? '').trim()
-  const area = String(formData.get('area') ?? '').trim()
   const mensagem = String(formData.get('mensagem') ?? '').trim()
 
-  const errors: ContactState['errors'] = {}
+  const errors: ServicoContactState['errors'] = {}
   if (nome.length < 2) errors.nome = 'Informe seu nome.'
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) errors.email = 'E-mail inválido.'
   if (telefone.replace(/\D/g, '').length < 10)
     errors.telefone = 'Informe um telefone com DDD.'
-  if (!(CONTACT_AREAS as readonly string[]).includes(area))
-    errors.area = 'Selecione uma área.'
   if (mensagem.length < 10)
     errors.mensagem = 'Descreva sua demanda (mín. 10 caracteres).'
 
@@ -40,13 +46,18 @@ export async function submitContact(
     }
   }
 
-  // `codigo` definitivo vem do autoincrement do SQLite (sem contador à parte,
-  // que seria fonte de corrida entre solicitações concorrentes): insere com
-  // um placeholder único, recupera o `id` gerado e atualiza pro valor final.
   const placeholder = `PENDING-${crypto.randomUUID()}`
   const [inserted] = await db
     .insert(pedidos)
-    .values({ codigo: placeholder, nome, email, telefone, area, mensagem })
+    .values({
+      codigo: placeholder,
+      nome,
+      email,
+      telefone,
+      area: page.title,
+      mensagem,
+      origem: `servicos/${page.slug}`,
+    })
     .returning({ id: pedidos.id })
 
   const codigo = `AS-${inserted.id}`
@@ -55,7 +66,7 @@ export async function submitContact(
   try {
     await sendPushToAdmins({
       title: `Novo pedido: ${codigo}`,
-      body: `${nome} · ${area}`,
+      body: `${nome} · ${page.title}`,
       url: '/dashboard',
     })
   } catch (err) {

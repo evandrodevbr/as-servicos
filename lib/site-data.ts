@@ -105,11 +105,11 @@ export const PORTFOLIO: {
     ano: '2024',
     description:
       'Da alvenaria exposta ao acabamento pronto, com orçamento fechado desde o início, sem reajuste surpresa no meio da obra.',
-    image: '/portfolio/reforma-depois.png',
+    image: '/portfolio/reforma-depois.jpeg',
     imageAlt:
       'Sala de apartamento reformada com piso de concreto polido, paredes brancas e caixilhos metálicos pretos',
     compare: {
-      image: '/portfolio/reforma-antes.png',
+      image: '/portfolio/reforma-antes.jpeg',
       alt: 'Mesmo apartamento antes da reforma, com paredes de alvenaria expostas e entulho',
     },
   },
@@ -139,7 +139,7 @@ export const PORTFOLIO: {
     ano: '2023',
     description:
       'Câmeras posicionadas para cobrir cada ponto cego, rede certificada ponta a ponta e acesso remoto, para acompanhar sem precisar estar lá.',
-    image: '/portfolio/cftv.png',
+    image: '/portfolio/cftv.webp',
     imageAlt:
       'Rack de rede com patch panels, cabos azuis organizados e switch com LEDs acesos',
   },
@@ -152,7 +152,7 @@ export const PORTFOLIO: {
     ano: '2025',
     description:
       'Pensada para quem gerencia obra no dia a dia: menos planilha solta, mais clareza de custo e prazo em tempo real.',
-    image: '/portfolio/software.png',
+    image: '/portfolio/software.webp',
     imageAlt:
       'Monitor exibindo painel de software escuro com gráficos e indicadores em azul',
   },
@@ -173,8 +173,8 @@ export const PORTFOLIO: {
 export const OBFUSCATED_CONTACTS = {
   whatsapp: {
     label: 'WhatsApp',
-    encodedDisplay: 'MTE1Ny00ODk5ICkxNCggNTUr',
-    encodedDigits: 'MTE1NzQ4OTkxNDU1',
+    encodedDisplay: 'NTQ4OC03NzE5OSApMTQoIDU1Kw==',
+    encodedDigits: 'NTQ4ODc3MTk5MTQ1NQ==',
   },
   email: {
     label: 'E-mail',
@@ -185,4 +185,161 @@ export const OBFUSCATED_CONTACTS = {
 /** Links que não precisam de ofuscação (não são alvo de spam harvesting). */
 export const CONTACT_LINKS_PLAIN = [
   { label: 'LinkedIn', value: 'AS Serviços', href: 'https://www.linkedin.com/company/asilvaservicos' },
+]
+
+/* -------------------------------------------------------------------------- */
+/*  Páginas de serviço por área (app/servicos/[slug])                          */
+/* -------------------------------------------------------------------------- */
+
+export const SERVICOS_SLUGS = [
+  'engenharia-civil',
+  'engenharia-eletrica',
+  'tecnologia',
+] as const
+export type ServicosSlug = (typeof SERVICOS_SLUGS)[number]
+
+export type ServicoPage = {
+  slug: ServicosSlug
+  themeId: 'civil' | 'eletrica' | 'tech'
+  title: string
+  headline: string
+  description: string
+  services: { titulo: string; texto: string }[]
+  /** Áreas da home que alimentam esta página (filtro de portfólio/prova). */
+  areaIds: AreaId[]
+  /** Prova externa publicável (igual à estrutura de AREAS.externalProof). */
+  externalProof?: (typeof AREAS)[number]['externalProof']
+  cta: { label: string; texto: string }
+}
+
+export const SERVICOS_PAGES: ServicoPage[] = [
+  {
+    slug: 'engenharia-civil',
+    themeId: 'civil',
+    title: 'Engenharia Civil',
+    headline: 'Da fundação ao acabamento, com documentação que sustenta cada decisão.',
+    description:
+      'Projetamos, orçamos e acompanhamos a execução da obra com registro técnico em cada etapa — do primeiro levantamento ao laudo final.',
+    services: [
+      {
+        titulo: 'Reformas residenciais e comerciais',
+        texto:
+          'Projeto, orçamento e acompanhamento de execução, com documentação técnica que registra cada etapa da obra.',
+      },
+      {
+        titulo: 'Projetos estruturais e hidrossanitários',
+        texto:
+          'Cálculo e detalhamento de estrutura e instalações prediais, prontos para execução e para a ART correspondente.',
+      },
+      {
+        titulo: 'Modelagem e documentação em BIM',
+        texto:
+          'Representação digital da obra para visualizar soluções, coordenar disciplinas e documentar decisões antes da execução.',
+      },
+      {
+        titulo: 'Orçamentos e planilhas de custo',
+        texto:
+          'Levantamento de quantitativos e composição de custos que sustentam a decisão de investir antes do primeiro dia de obra.',
+      },
+      {
+        titulo: 'Laudos técnicos e vistorias',
+        texto:
+          'Diagnóstico documentado de patologias e condições da edificação, com as necessidades de intervenção apontadas uma a uma.',
+      },
+    ],
+    areaIds: ['civil'],
+    cta: {
+      label: 'Descrever minha obra',
+      texto:
+        'Reformas, laudos e orçamentos começam por uma descrição. Devolvemos um diagnóstico em até 1 dia útil.',
+    },
+  },
+  {
+    slug: 'engenharia-eletrica',
+    themeId: 'eletrica',
+    title: 'Engenharia Elétrica',
+    headline: 'Energia dimensionada, protegida e em conformidade com a norma.',
+    description:
+      'Dimensionamento de circuitos, proteção contra descargas atmosféricas e laudos que colocam a instalação em conformidade com as normas vigentes.',
+    services: [
+      {
+        titulo: 'Projetos elétricos residenciais e comerciais',
+        texto:
+          'Dimensionamento de circuitos, cargas e proteções conforme as normas vigentes, com pranchas prontas para execução.',
+      },
+      {
+        titulo: 'SPDA e proteção contra descargas',
+        texto:
+          'Captor, descidas e aterramento projetados, com laudo que comprova a conformidade da proteção contra raios.',
+      },
+      {
+        titulo: 'Adequação e reforma de quadros',
+        texto:
+          'Quadros reorganizados com disjuntores dimensionados, circuitos identificados e diagramas atualizados.',
+      },
+      {
+        titulo: 'Laudos técnicos e ART',
+        texto:
+          'Inspeção documentada da instalação, com não conformidades apontadas e plano de correção priorizado.',
+      },
+    ],
+    areaIds: ['eletrica'],
+    cta: {
+      label: 'Descrever minha instalação',
+      texto:
+        'Quadros, SPDA e laudos começam por uma descrição. Devolvemos um diagnóstico em até 1 dia útil.',
+    },
+  },
+  {
+    slug: 'tecnologia',
+    themeId: 'tech',
+    title: 'Engenharia da Computação & Tecnologia',
+    headline: 'Sistemas, automação e infraestrutura — a mesma engenharia aplicada ao digital.',
+    description:
+      'Software sob encomenda, automação de processos, manutenção de TI, redes e CFTV. O que sua empresa roda no dia a dia, construído ou sustentado por quem entende de engenharia.',
+    services: [
+      {
+        titulo: 'Sites e sistemas sob encomenda',
+        texto:
+          'Do site institucional ao sistema interno com painel administrativo, banco de dados e integrações.',
+      },
+      {
+        titulo: 'Automação de processos internos',
+        texto:
+          'Tarefas repetitivas transformadas em rotinas: integrações, geração de documentos e fluxos de aprovação.',
+      },
+      {
+        titulo: 'Integrações e APIs',
+        texto:
+          'Conectar os sistemas que sua empresa já usa — planilhas, ERPs, gateways — sem reconstruir o que funciona.',
+      },
+      {
+        titulo: 'Manutenção de TI e infraestrutura',
+        texto:
+          'Suporte a computadores, servidores e redes, com foco em empresas pequenas e médias.',
+      },
+      {
+        titulo: 'Cabeamento estruturado e redes',
+        texto:
+          'Infraestrutura de sinal organizada e documentada: cabeamento, painéis, roteadores e pontos de rede.',
+      },
+      {
+        titulo: 'CFTV e controle de acesso',
+        texto:
+          'Projeto e instalação de câmeras e controle de acesso, com gravação e alertas configurados.',
+      },
+    ],
+    areaIds: ['eletronica', 'computacao'],
+    externalProof: {
+      label: 'Portfólio de desenvolvimento',
+      title: 'evandro.dev.br',
+      meta: 'projetos pessoais · abrir ↗',
+      href: 'https://evandro.dev.br',
+    },
+    cta: {
+      label: 'Descrever minha demanda de tecnologia',
+      texto:
+        'Sistemas, automação e TI começam por uma descrição. Devolvemos um diagnóstico em até 1 dia útil.',
+    },
+  },
 ]

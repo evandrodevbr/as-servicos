@@ -1,7 +1,8 @@
 'use server'
 
 import { randomUUID } from 'node:crypto'
-import { mkdir, stat, unlink, writeFile } from 'node:fs/promises'
+import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { eq, inArray } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
@@ -10,7 +11,7 @@ import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { pedidoMidias, type MidiaCategoria } from '@/lib/db/schema'
 import { compressImage, compressVideo } from '@/lib/media-compress'
-import { PEDIDO_STORAGE_DIR as STORAGE_DIR } from '@/lib/pedido-storage'
+import { deletePedidoObject, putPedidoObject } from '@/lib/pedido-storage'
 
 async function requireSession() {
   const session = await auth.api.getSession({ headers: await headers() })
@@ -29,7 +30,6 @@ export async function getMidiasForPedido(pedidoId: number) {
 
 export async function uploadMidias(pedidoId: number, formData: FormData) {
   await requireSession()
-  await mkdir(STORAGE_DIR, { recursive: true })
 
   const files = formData.getAll('files').filter((f): f is File => f instanceof File)
 
@@ -48,31 +48,47 @@ export async function uploadMidias(pedidoId: number, formData: FormData) {
         originalBytes,
       )
       const filename = `${id}.${ext}`
-      await writeFile(path.join(STORAGE_DIR, filename), compressed)
-      await db.insert(pedidoMidias).values({
-        pedidoId,
-        tipo: 'imagem',
-        filename,
-        mimeType,
-        tamanhoBytes: compressed.length,
-      })
-    } else {
-      const tempPath = path.join(STORAGE_DIR, `${id}.tmp`)
-      const filename = `${id}.mp4`
-      await writeFile(tempPath, buffer)
+      const key = await putPedidoObject(filename, compressed, mimeType)
       try {
-        await compressVideo(tempPath, path.join(STORAGE_DIR, filename), originalBytes)
-      } finally {
-        await unlink(tempPath).catch(() => {})
+        await db.insert(pedidoMidias).values({
+          pedidoId,
+          tipo: 'imagem',
+          filename: key,
+          mimeType,
+          tamanhoBytes: compressed.length,
+        })
+      } catch (error) {
+        await deletePedidoObject(key).catch((cleanupError) => {
+          console.error('Falha ao limpar objeto R2 após erro no banco:', cleanupError)
+        })
+        throw error
       }
-      const { size } = await stat(path.join(STORAGE_DIR, filename))
-      await db.insert(pedidoMidias).values({
-        pedidoId,
-        tipo: 'video',
-        filename,
-        mimeType: 'video/mp4',
-        tamanhoBytes: size,
-      })
+    } else {
+      const tempDir = await mkdtemp(path.join(tmpdir(), 'asservicos-media-'))
+      const inputPath = path.join(tempDir, `${id}.input`)
+      const outputPath = path.join(tempDir, `${id}.mp4`)
+      try {
+        await writeFile(inputPath, buffer)
+        await compressVideo(inputPath, outputPath, originalBytes)
+        const compressed = await readFile(outputPath)
+        const key = await putPedidoObject(`${id}.mp4`, compressed, 'video/mp4')
+        try {
+          await db.insert(pedidoMidias).values({
+            pedidoId,
+            tipo: 'video',
+            filename: key,
+            mimeType: 'video/mp4',
+            tamanhoBytes: compressed.length,
+          })
+        } catch (error) {
+          await deletePedidoObject(key).catch((cleanupError) => {
+            console.error('Falha ao limpar objeto R2 após erro no banco:', cleanupError)
+          })
+          throw error
+        }
+      } finally {
+        await rm(tempDir, { recursive: true, force: true })
+      }
     }
   }
 
@@ -92,6 +108,8 @@ export async function deleteMidia(id: number) {
   if (!midia) return
 
   await db.delete(pedidoMidias).where(eq(pedidoMidias.id, id))
-  await unlink(path.join(STORAGE_DIR, midia.filename)).catch(() => {})
+  await deletePedidoObject(midia.filename).catch((error) => {
+    console.error('Falha ao limpar objeto R2:', error)
+  })
   revalidatePath('/dashboard')
 }

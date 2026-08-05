@@ -39,6 +39,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { PEDIDO_STATUS, type PedidoStatus } from '@/lib/db/schema'
+import { SERVICOS_PAGES } from '@/lib/site-data'
 
 export type Pedido = {
   id: number
@@ -48,8 +49,16 @@ export type Pedido = {
   telefone: string
   area: string
   mensagem: string
+  origem: string
   status: PedidoStatus
   createdAt: Date
+}
+
+/** Rótulo da tag de origem exibida no painel. */
+export function origemLabel(origem: string): string | null {
+  if (origem === 'site' || origem === 'dashboard') return null
+  const page = SERVICOS_PAGES.find((p) => p.slug === origem.replace('servicos/', ''))
+  return page ? `Página: ${page.title}` : origem
 }
 
 const STATUS_LABEL: Record<PedidoStatus, string> = {
@@ -145,6 +154,15 @@ function PedidoDetailDialog({
               <dt className="text-muted-foreground">Área</dt>
               <dd className="col-span-2">{pedido.area}</dd>
 
+              {origemLabel(pedido.origem) && (
+                <>
+                  <dt className="text-muted-foreground">Origem</dt>
+                  <dd className="col-span-2">
+                    <Badge variant="outline">{origemLabel(pedido.origem)}</Badge>
+                  </dd>
+                </>
+              )}
+
               <dt className="text-muted-foreground">Status</dt>
               <dd className="col-span-2">
                 <StatusChanger pedido={pedido} />
@@ -185,7 +203,19 @@ const columns: ColumnDef<Pedido>[] = [
   {
     accessorKey: 'area',
     header: 'Área',
-    cell: ({ row }) => <span className="line-clamp-1">{row.original.area}</span>,
+    cell: ({ row }) => {
+      const tag = origemLabel(row.original.origem)
+      return (
+        <span className="flex flex-col gap-1">
+          <span className="line-clamp-1">{row.original.area}</span>
+          {tag && (
+            <Badge variant="outline" className="w-fit">
+              {tag}
+            </Badge>
+          )}
+        </span>
+      )
+    },
   },
   {
     id: 'status',
