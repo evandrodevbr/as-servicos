@@ -2,14 +2,29 @@ import Link from 'next/link'
 import { Reveal } from '@/components/motion/reveal'
 import type { ServicoPage } from '@/lib/site-data'
 
+const TECH_SCOPE = [
+  {
+    title: 'Criar',
+    text: 'Sites e sistemas sob encomenda para a rotina da empresa.',
+  },
+  {
+    title: 'Conectar e automatizar',
+    text: 'Integrações entre ferramentas e automação de processos.',
+  },
+  {
+    title: 'Manter a base funcionando',
+    text: 'Suporte de TI, redes, cabeamento estruturado, CFTV e controle de acesso.',
+  },
+] as const
+
 /**
  * Hero das páginas de serviço — a cena 3D da área (SceneCanvas, montada na
  * página) aparece limpa atrás do texto graças à vinheta do canvas; o scroll
  * da página conduz a transição A→B. Título e descrição ficam visíveis desde
- * o SSR (LCP estável); só rótulo e CTAs animam.
+ * o SSR (LCP estável); rótulo, escopo e CTAs animam.
  *
- * Na página de Tecnologia, o rótulo usa notação de caminho de código
- * (`./servicos/tecnologia`) e uma linha mono espelha o escopo real da área.
+ * Na página de Tecnologia, o rótulo usa notação de caminho
+ * (`./servicos/tecnologia`) e o escopo aparece em três frentes de atuação.
  */
 export function ServicoHero({ page }: { page: ServicoPage }) {
   const isTech = page.themeId === 'tech'
@@ -33,10 +48,27 @@ export function ServicoHero({ page }: { page: ServicoPage }) {
           {page.description}
         </p>
         {isTech && (
-          <p className="font-mono text-muted-foreground mt-6 text-xs leading-relaxed tracking-[0.04em]">
-            <span aria-hidden="true">// </span>escopo: sistemas · automação ·
-            integrações · ti · redes · cftv
-          </p>
+          <Reveal delay={160} className="tech-scope mt-8 max-w-2xl">
+            <div className="tech-scope__head">
+              <h2 id="tech-scope-title" className="tech-scope__title">
+                Escopo de tecnologia
+              </h2>
+              <p className="tech-scope__subtitle">
+                Do sistema à infraestrutura, tudo precisa funcionar em conjunto.
+              </p>
+            </div>
+            <ul className="tech-scope__items" aria-labelledby="tech-scope-title">
+              {TECH_SCOPE.map((item) => (
+                <li key={item.title} className="tech-scope__item">
+                  <span aria-hidden="true" className="tech-scope__marker" />
+                  <div>
+                    <h3 className="tech-scope__item-title">{item.title}</h3>
+                    <p className="tech-scope__item-text">{item.text}</p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </Reveal>
         )}
         <Reveal delay={120}>
           <div className="mt-10 flex flex-wrap items-center gap-4">

@@ -294,9 +294,9 @@ export const SERVICOS_PAGES: ServicoPage[] = [
     slug: 'tecnologia',
     themeId: 'tech',
     title: 'Engenharia da Computação & Tecnologia',
-    headline: 'Sistemas, automação e infraestrutura — a mesma engenharia aplicada ao digital.',
+    headline: 'Da rotina à infraestrutura, tecnologia que sustenta sua operação.',
     description:
-      'Software sob encomenda, automação de processos, manutenção de TI, redes e CFTV. O que sua empresa roda no dia a dia, construído ou sustentado por quem entende de engenharia.',
+      'Sistemas sob encomenda, automação de processos e infraestrutura de TI para conectar o que sua empresa usa todos os dias — sites, integrações, redes, CFTV e suporte.',
     services: [
       {
         titulo: 'Sites e sistemas sob encomenda',

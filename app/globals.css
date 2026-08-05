@@ -527,6 +527,177 @@
   --ring: oklch(0.54 0.2 285);
 }
 
+/* Linha de operação da Tecnologia — três frentes ligadas pela mesma base. */
+.tech-scope {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(11rem, 0.72fr) minmax(0, 1.28fr);
+  gap: 1.25rem 2.5rem;
+  overflow: hidden;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 20px 0 10px;
+}
+
+.tech-scope::before {
+  position: absolute;
+  top: -1px;
+  left: 0;
+  width: 5rem;
+  height: 1px;
+  background: var(--primary);
+  content: '';
+}
+
+.tech-scope__head {
+  align-self: start;
+}
+
+.tech-scope__title,
+.tech-scope__subtitle,
+.tech-scope__item-title,
+.tech-scope__item-text {
+  margin: 0;
+}
+
+.tech-scope__title {
+  color: var(--foreground);
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  line-height: 1.2;
+}
+
+.tech-scope__subtitle {
+  max-width: 18rem;
+  margin-top: 0.55rem;
+  color: var(--muted-foreground);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.tech-scope__items {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin: 0;
+  padding: 0 0 0.25rem;
+  list-style: none;
+}
+
+.tech-scope__items::before,
+.tech-scope__items::after {
+  position: absolute;
+  top: 0.45rem;
+  bottom: 0.95rem;
+  left: 0.2rem;
+  width: 1px;
+  content: '';
+}
+
+.tech-scope__items::before {
+  background: var(--border);
+}
+
+.tech-scope__items::after {
+  background: var(--primary);
+  transform: scaleY(0);
+  transform-origin: top;
+  animation: tech-scope-route 800ms cubic-bezier(0.16, 1, 0.3, 1) 180ms both;
+}
+
+.tech-scope__item {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1rem minmax(0, 1fr);
+  gap: 0.7rem;
+  min-width: 0;
+  padding: 0 0 1.15rem;
+}
+
+.tech-scope__item + .tech-scope__item {
+  padding-top: 0.15rem;
+}
+
+.tech-scope__marker {
+  z-index: 1;
+  width: 7px;
+  height: 7px;
+  margin-top: 0.38rem;
+  flex: none;
+  border: 1px solid var(--primary);
+  background: var(--background);
+  transition: background-color 180ms ease;
+}
+
+.tech-scope__item:hover .tech-scope__marker {
+  background: var(--primary);
+}
+
+.tech-scope__item-title {
+  color: var(--foreground);
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.tech-scope__item-text {
+  max-width: 32rem;
+  margin-top: 0.4rem;
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+@keyframes tech-scope-route {
+  from {
+    opacity: 0.45;
+    transform: scaleY(0);
+  }
+  to {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+}
+
+@media (max-width: 639px) {
+  .tech-scope {
+    display: block;
+    padding: 18px 0 8px;
+  }
+
+  .tech-scope__subtitle {
+    max-width: 32rem;
+  }
+
+  .tech-scope__items {
+    margin-top: 1.5rem;
+  }
+
+  .tech-scope__item {
+    padding-bottom: 1rem;
+  }
+
+  .tech-scope__item-text {
+    font-size: 0.9rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tech-scope__items::after,
+  .tech-scope__marker {
+    animation: none;
+    transition: none;
+  }
+
+  .tech-scope__items::after {
+    transform: scaleY(1);
+  }
+}
+
 /* -------------------------------------------------------------------------- */
 /*  Página de Tecnologia — motivos de desenvolvimento de software.            */
 /*  Mesma gramática blueprint: bordas retas, hairline, labels técnicos.       */

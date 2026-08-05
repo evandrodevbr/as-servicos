@@ -17,8 +17,8 @@ export function ServicoServicos({ page }: { page: ServicoPage }) {
           stagger
         >
           {isTech && (
-            <p className="font-mono text-muted-foreground mb-3 text-xs tracking-[0.12em]">
-              // entregas.ts
+            <p className="label-tech text-muted-foreground mb-3">
+              Entregas de tecnologia
             </p>
           )}
           <h2
@@ -36,8 +36,8 @@ export function ServicoServicos({ page }: { page: ServicoPage }) {
             {page.services.map((service, index) => (
               <article key={service.titulo} className="border-border border-t pt-6">
                 {isTech && (
-                  <p className="font-mono text-primary mb-3 text-xs font-semibold tracking-[0.12em]">
-                    {'// ' + String(index + 1).padStart(2, '0')}
+                  <p className="label-tech text-primary mb-3 font-semibold">
+                    Entrega {String(index + 1).padStart(2, '0')}
                   </p>
                 )}
                 <h3 className="font-display text-xl font-bold tracking-[-0.01em]">
