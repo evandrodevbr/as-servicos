@@ -13,7 +13,7 @@ const TECH_SCOPE = [
  },
  {
   title: 'Sustentar a operação',
-  text: 'TI, redes, cabeamento estruturado, CFTV e controle de acesso.',
+  text: 'TI, redes, CFTV e controle de acesso.',
  },
 ] as const
 

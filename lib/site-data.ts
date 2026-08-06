@@ -57,7 +57,6 @@ export const AREAS: {
     'Infraestrutura de sinal e automação: da passagem de cabo ao dispositivo que decide sozinho quando acionar, gravar ou alertar.',
    items: [
     'CFTV e controle de acesso',
-    'Cabeamento estruturado e redes',
     'Automação residencial e predial',
     'Prototipagem eletrônica sob demanda',
    ],
@@ -106,11 +105,11 @@ export const PORTFOLIO: {
    ano: '2024',
    description:
     'Da alvenaria exposta ao acabamento pronto, com orçamento fechado desde o início, sem reajuste surpresa no meio da obra.',
-   image: '/portfolio/reforma-depois.jpeg',
+   image: '/portfolio/reforma-depois.jpg',
    imageAlt:
     'Sala de apartamento reformada com piso de concreto polido, paredes brancas e caixilhos metálicos pretos',
    compare: {
-    image: '/portfolio/reforma-antes.jpeg',
+    image: '/portfolio/reforma-antes.jpg',
     alt: 'Mesmo apartamento antes da reforma, com paredes de alvenaria expostas e entulho',
    },
   },
@@ -132,32 +131,6 @@ export const PORTFOLIO: {
    },
   },
   {
-   id: 'cftv',
-   title: 'CFTV e cabeamento estruturado',
-   area: 'Eletrônica & Automação',
-   areaId: 'eletronica',
-   local: 'Galpão logístico',
-   ano: '2023',
-   description:
-    'Câmeras posicionadas para cobrir cada ponto cego, rede certificada ponta a ponta e acesso remoto, para acompanhar sem precisar estar lá.',
-   image: '/portfolio/cftv.webp',
-   imageAlt:
-    'Rack de rede com patch panels, cabos azuis organizados e switch com LEDs acesos',
-  },
-  {
-   id: 'sistema',
-   title: 'Sistema de gestão de obras',
-   area: 'Desenvolvimento de Software',
-   areaId: 'computacao',
-   local: 'Sob encomenda',
-   ano: '2025',
-   description:
-    'Pensada para quem gerencia obra no dia a dia: menos planilha solta, mais clareza de custo e prazo em tempo real.',
-   image: '/portfolio/software.webp',
-   imageAlt:
-    'Monitor exibindo painel de software escuro com gráficos e indicadores em azul',
-  },
-  {
    id: 'sevmodaintima',
    title: 'SEV Moda Íntima',
    area: 'Desenvolvimento de Software',
@@ -166,7 +139,7 @@ export const PORTFOLIO: {
    ano: 'ao vivo',
    description:
     'Site publicado com catálogo e experiência digital para uma marca de moda íntima.',
-   image: '/portfolio/technology/sevmodaintima.png',
+   image: '/portfolio/technology/sevmodaintima.jpg',
    imageAlt:
     'Página inicial da SEV Moda Íntima com navegação, chamada de coleção e produtos em destaque',
    href: 'https://sevmodaintima.com.br/',
@@ -180,7 +153,7 @@ export const PORTFOLIO: {
    ano: 'ao vivo',
    description:
     'Aplicação web de nutrição com foco em produto digital e uso offline.',
-   image: '/portfolio/technology/nutriscan.png',
+   image: '/portfolio/technology/nutriscan.jpg',
    imageAlt:
     'Aplicação NutriScan aberta no navegador com interface de análise nutricional',
    href: 'https://nutriscan.evandro.dev.br/',
@@ -194,10 +167,94 @@ export const PORTFOLIO: {
    ano: 'ao vivo',
    description:
     'Site institucional para educação, ciência e tecnologia em Garuva-SC.',
-   image: '/portfolio/technology/sc-plus.png',
+   image: '/portfolio/technology/sc-plus.jpg',
    imageAlt:
-    'Página inicial da SCPLUS com chamada para educação, ciência e tecnologia',
+    'Captura da página inicial da SCPLUS com fundo preto e destaques em verde',
    href: 'https://scplus.evandro.dev.br/',
+  },
+  {
+   id: 'piagentui',
+   title: 'PiAgentUI',
+   area: 'Desenvolvimento de Software',
+   areaId: 'computacao',
+   local: 'GitHub',
+   ano: '2026',
+   description:
+    'Workspace desktop e web para agentes de IA: sessões, ferramentas MCP, skills e terminal integrados, com app Tauri.',
+   image: '/portfolio/technology/piagentui.jpg',
+   imageAlt:
+    'Interface do PiAgentUI com chat de agente de IA e painel lateral de MCP',
+   href: 'https://github.com/evandrodevbr/PiAgentUI',
+  },
+  {
+   id: 'gemininexus',
+   title: 'Gemini Nexus',
+   area: 'Desenvolvimento de Software',
+   areaId: 'computacao',
+   local: 'GitHub',
+   ano: '2026',
+   description:
+    'Gateway de IA multi-contas para Gemini e Claude com troca automática, analytics de uso e proxy local OpenAI/Anthropic.',
+   image: '/portfolio/technology/gemininexus.jpg',
+   imageAlt:
+    'Dashboard do Gemini Nexus com gráficos de uso de tokens e contas conectadas',
+   href: 'https://github.com/evandrodevbr/GeminiNexus',
+  },
+  {
+   id: 'ollahub',
+   title: 'OllaHub',
+   area: 'Desenvolvimento de Software',
+   areaId: 'computacao',
+   local: 'GitHub',
+   ano: '2026',
+   description:
+    'App desktop para gerenciar modelos Ollama locais: chat, agendamento de tarefas e modo de fundo na bandeja do sistema.',
+   image: '/portfolio/technology/ollahub.jpg',
+   imageAlt:
+    'Card de repositório do OllaHub, app desktop para modelos Ollama',
+   href: 'https://github.com/evandrodevbr/OllaHub',
+  },
+  {
+   id: 'localmind',
+   title: 'LocalMind',
+   area: 'Desenvolvimento de Software',
+   areaId: 'computacao',
+   local: 'GitHub',
+   ano: '2026',
+   description:
+    'Chat com modelos de IA locais no celular — app React Native para LMStudio, 100% offline e sem nuvem.',
+   image: '/portfolio/technology/localmind.jpg',
+   imageAlt:
+    'Card de repositório do LocalMind, app mobile para IA local',
+   href: 'https://github.com/evandrodevbr/LocalMind',
+  },
+  {
+   id: 'latebra',
+   title: 'latebra',
+   area: 'Desenvolvimento de Software',
+   areaId: 'computacao',
+   local: 'GitHub',
+   ano: '2026',
+   description:
+    'Servidor MCP anti-bot para scraping anônimo com evasão em camadas, TLS fingerprinting e rotação de proxies.',
+   image: '/portfolio/technology/latebra.jpg',
+   imageAlt:
+    'Card de repositório do latebra, servidor MCP anti-bot de scraping',
+   href: 'https://github.com/evandrodevbr/latebra',
+  },
+  {
+   id: 'orelhia',
+   title: 'orelhIA',
+   area: 'Desenvolvimento de Software',
+   areaId: 'computacao',
+   local: 'GitHub',
+   ano: '2026',
+   description:
+    'Servidor MCP de transcrição de áudio local com modelo PT-BR nativo, cache LRU e detecção de voz (VAD).',
+   image: '/portfolio/technology/orelhia.jpg',
+   imageAlt:
+    'Card de repositório do orelhIA, servidor MCP de transcrição de áudio',
+   href: 'https://github.com/evandrodevbr/orelhIA',
   },
  ]
 
@@ -372,7 +429,7 @@ export const SERVICOS_PAGES: ServicoPage[] = [
      'Sistemas conectados que aproximam sensores, dispositivos e software para observar e controlar a operação.',
    },
    {
-    titulo: 'Manutenção de TI, redes e cabeamento estruturado',
+    titulo: 'Manutenção de TI e redes',
     texto:
      'Suporte a computadores, servidores e infraestrutura de sinal organizada e documentada.',
    },
