@@ -68,6 +68,7 @@ export function ServicoServicos({ page }: { page: ServicoPage }) {
              src={item.image}
              alt={item.imageAlt}
              fill
+             loading={item.id === 'sc-plus' ? 'eager' : 'lazy'}
              sizes="(min-width: 640px) 50vw, 100vw"
              className="object-cover object-top grayscale-[35%]"
             />
