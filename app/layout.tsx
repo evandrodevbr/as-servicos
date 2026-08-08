@@ -79,7 +79,8 @@ export default function RootLayout({
         <OrganizationSchema />
         {children}
         <Toaster />
-        {process.env.NODE_ENV === 'production' && <Analytics />}
+        {process.env.NODE_ENV === 'production' &&
+          process.env.NEXT_PUBLIC_VERCEL_ANALYTICS_ID && <Analytics />}
       </body>
     </html>
   )
