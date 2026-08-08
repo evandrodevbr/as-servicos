@@ -17,7 +17,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { formatBrazilianPhone } from '@/lib/format-phone'
-import { CONTACT_AREAS } from '@/lib/site-data'
+import { CONTACT_AREAS, DEMAND_PLACEHOLDERS } from '@/lib/site-data'
 
 const initialState: NovoPedidoState = { status: 'idle', message: '' }
 
@@ -37,6 +37,7 @@ export function NovoPedidoDialog() {
   const router = useRouter()
   const [open, setOpen] = useState(false)
   const [formKey, setFormKey] = useState(0)
+  const [area, setArea] = useState<(typeof CONTACT_AREAS)[number] | ''>('')
   const [state, formAction] = useActionState(createPedido, initialState)
 
   useEffect(() => {
@@ -135,6 +136,7 @@ export function NovoPedidoDialog() {
               name="area"
               defaultValue=""
               required
+              onChange={(e) => setArea(e.target.value as (typeof CONTACT_AREAS)[number])}
               aria-invalid={!!state.errors?.area}
               aria-describedby={state.errors?.area ? 'novo-area-error' : undefined}
               className={fieldClass}
@@ -162,7 +164,9 @@ export function NovoPedidoDialog() {
               name="mensagem"
               rows={4}
               required
-              placeholder="Ex.: Laudo de SPDA vencido; condomínio precisa regularizar."
+              placeholder={
+                area ? DEMAND_PLACEHOLDERS[area] : DEMAND_PLACEHOLDERS['Não sei / Outro']
+              }
               aria-invalid={!!state.errors?.mensagem}
               aria-describedby={
                 state.errors?.mensagem ? 'novo-mensagem-error' : undefined

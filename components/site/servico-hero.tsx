@@ -23,8 +23,7 @@ const TECH_SCOPE = [
  * da página conduz a transição A→B. Título e descrição ficam visíveis desde
  * o SSR (LCP estável); rótulo, escopo e CTAs animam.
  *
- * Na página de Tecnologia, o rótulo usa notação de caminho
- * (`./servicos/tecnologia`) e o escopo aparece em três frentes de atuação.
+ * Na página de Tecnologia, o escopo aparece em três frentes de atuação.
  */
 export function ServicoHero({ page }: { page: ServicoPage }) {
  const isTech = page.themeId === 'tech'
@@ -33,12 +32,7 @@ export function ServicoHero({ page }: { page: ServicoPage }) {
   <section className="relative flex min-h-[80svh] items-center">
    <div className="relative z-10 mx-auto w-full max-w-[1400px] px-5 py-28 sm:px-8">
     <Reveal>
-     <p
-      className={`text-primary mb-6 ${isTech ? 'font-mono text-xs tracking-[0.12em]' : 'label-tech'
-       }`}
-     >
-      {isTech ? '[ ./servicos/tecnologia ]' : `[ Serviços ] ${page.title}`}
-     </p>
+     <p className="text-primary label-tech mb-6">[ Serviços ] {page.title}</p>
     </Reveal>
     <h1 className="font-display max-w-3xl text-balance text-3xl leading-[1.05] font-bold tracking-[-0.02em] sm:text-5xl">
      {page.headline}

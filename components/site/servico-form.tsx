@@ -127,7 +127,7 @@ export function ServicoForm({ page }: { page: ServicoPage }) {
           name="mensagem"
           rows={5}
           required
-          placeholder="Ex.: Preciso de um laudo de SPDA para o condomínio onde moro. O atual está vencido e o síndico pediu regularização até o fim do mês."
+          placeholder={page.placeholder}
           aria-invalid={!!state.errors?.mensagem}
           aria-describedby={
             state.errors?.mensagem ? `${page.slug}-mensagem-error` : undefined

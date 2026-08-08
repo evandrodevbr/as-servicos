@@ -6,6 +6,18 @@ export const CONTACT_AREAS = [
  'Não sei / Outro',
 ] as const
 
+/** Placeholder da descrição da demanda por área (dashboard). */
+export const DEMAND_PLACEHOLDERS: Record<(typeof CONTACT_AREAS)[number], string> = {
+ 'Engenharia Civil':
+  'Ex.: Reforma de banheiro em apartamento; orçamento e acompanhamento de obra.',
+ 'Engenharia Elétrica': 'Ex.: Laudo de SPDA vencido; condomínio precisa regularizar.',
+ 'Eletrônica / Automação':
+  'Ex.: Automação de portão e iluminação; CFTV com acesso pelo celular.',
+ 'Desenvolvimento de Software':
+  'Ex.: Sistema interno para controlar pedidos e clientes da empresa.',
+ 'Não sei / Outro': 'Ex.: Descreva sua demanda mesmo sem saber a área — a gente classifica.',
+}
+
 export type AreaId = 'civil' | 'eletrica' | 'eletronica' | 'computacao'
 
 export const AREAS: {
@@ -308,8 +320,10 @@ export type ServicoPage = {
  /** Áreas da home que alimentam esta página (filtro de portfólio/prova). */
  areaIds: AreaId[]
  /** Prova externa publicável (igual à estrutura de AREAS.externalProof). */
- externalProof?: (typeof AREAS)[number]['externalProof']
- cta: { label: string; texto: string }
+externalProof?: (typeof AREAS)[number]['externalProof']
+/** Placeholder do campo "Descrição da demanda" no formulário da página. */
+placeholder: string
+cta: { label: string; texto: string }
 }
 
 export const SERVICOS_PAGES: ServicoPage[] = [
@@ -348,6 +362,8 @@ export const SERVICOS_PAGES: ServicoPage[] = [
    },
   ],
   areaIds: ['civil'],
+  placeholder:
+   'Ex.: Quero reformar o banheiro do apartamento e preciso de orçamento e acompanhamento de obra.',
   cta: {
    label: 'Descrever minha obra',
    texto:
@@ -384,6 +400,8 @@ export const SERVICOS_PAGES: ServicoPage[] = [
    },
   ],
   areaIds: ['eletrica'],
+  placeholder:
+   'Ex.: Preciso de um laudo de SPDA para o condomínio onde moro. O atual está vencido e o síndico pediu regularização até o fim do mês.',
   cta: {
    label: 'Descrever minha instalação',
    texto:
@@ -440,6 +458,8 @@ export const SERVICOS_PAGES: ServicoPage[] = [
    },
   ],
   areaIds: ['eletronica', 'computacao'],
+  placeholder:
+   'Ex.: Preciso de um site institucional e de um sistema para controlar os pedidos da minha empresa.',
   externalProof: {
    label: 'Portfólio de desenvolvimento',
    title: 'evandro.dev.br',
